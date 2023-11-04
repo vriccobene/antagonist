@@ -1,0 +1,89 @@
+version: '3'
+
+services:
+  influx:
+    image: influxdb:latest
+    container_name: ${INFLUX_CONTAINER}
+    restart: always
+    ports:
+      - "${INFLUX_PORT}:8086"
+    volumes:
+      - ./influx/data/:/var/lib/influxdb
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=ietf
+      - DOCKER_INFLUXDB_INIT_BUCKET=anomaly_detection
+      - DOCKER_INFLUXDB_INIT_RETENTION=365d
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=qT83QJVt1wENkP3s8Lfgyw0A5mGMQ5NFDApl5xOYKC3B_7tM5eVm8G0cnUsCzEG_8J3YEk0o2i6oH6L9masMxA==      
+    networks:
+      - influx
+
+  postgres:
+    image: library/postgres:latest
+    container_name: ${POSTGRES_CONTAINER}
+    restart: always
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./postgres/data/:/var/lib/postgresql/data
+      - ./postgres/initd/:/docker-entrypoint-initdb.d/
+    networks:
+      - postgres
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ${GRAFANA_CONTAINER}
+    restart: always
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_SERVER_ROOT_URL: http://${GRAFANA_HOST}:${GRAFANA_PORT}/grafana/
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_USERS_DEFAULT_THEME: "dark"
+      # The following are needed if you want to integrate dashboards into 
+      #   external web interfaces:
+      # GF_AUTH_ANONYMOUS_ENABLED: "true"
+      # GF_SECURITY_ALLOW_EMEDDING: "true"
+      # GF_SECURITY_COOKIE_SAME_SITE: "none"
+
+      GF_INSTALL_PLUGINS: volkovlabs-form-panel
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - ./grafana/plugins/:/var/lib/grafana/plugins/
+    depends_on:
+      - influx
+      - postgres
+    networks:
+      - influx
+      - postgres
+  
+  antagonist:
+    image: antagonist:latest
+    container_name: antagonist
+    restart: always
+    ports:
+      - "5001:5001"
+    depends_on:
+      - influx
+      - grafana
+    networks:
+      - influx
+
+networks:
+  influx:
+    driver: bridge
+  postgres:
+    driver: bridge
+
+volumes:
+  influx:
+  postgres:
+  grafana:

@@ -1,0 +1,34 @@
+apiVersion: 1
+datasources: 
+  - orgId: 1
+    version: 2
+    name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influx:8086
+    basicAuth: true
+    isDefault: true
+    jsonData:
+      defaultBucket: anomaly_detection
+      httpMode: POST
+      organization: ietf
+      version: Flux
+    secureJsonData:
+      token: "qT83QJVt1wENkP3s8Lfgyw0A5mGMQ5NFDApl5xOYKC3B_7tM5eVm8G0cnUsCzEG_8J3YEk0o2i6oH6L9masMxA=="
+  - orgId: 1
+    version: 2
+    id: 2143
+    name: PostgreSQL
+    type: "postgres"
+    access: proxy
+    url: postgres:5432
+    basicAuth: false
+    isDefault: false
+    readOnly: false
+    typeLogoUrl: "public/app/plugins/datasource/postgres/img/postgresql_logo.svg"
+    user: grafana
+    database: "incidents"
+    secureJsonData:
+      password: "grafana-password"
+    jsonData:
+      sslmode: "disable"
