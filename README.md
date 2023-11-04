@@ -17,4 +17,12 @@ The data used by the script is downloadable from the following link: https://git
 The easiest way to get this running is by using Docker.
 The following instructions are assuming you have Docker already installed on your system.
 
-To Be Completed ... 
+## Prepare for the deployment
+The preparation step requires the building of the docker image, by running the following instructions:
+
+    cd antagonist
+    docker_build -t antagonist:latest .
+
+
+## Deploy
+The
