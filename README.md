@@ -23,6 +23,16 @@ The preparation step requires the building of the docker image, by running the f
     cd antagonist
     docker_build -t antagonist:latest .
 
-
 ## Deploy
-The
+A docker compose file is provided as part of the project (under the docker directory).
+That docker compose will spin up 4 containers: grafana, influxDB, antagonist, postgres.
+
+## Prepare the data
+After deploying the containers, you will need to add the data to InfluxDB.
+This can be done by using the provided script to load up the data (script provided in the scripts directory).
+If you want to use that script to load up the data, data file is avaialable here: https://github.com/cisco-ie/telemetry/blob/master/2/bgpclear.csv.zip
+
+(But it should be relatively easy to work with different data, if you have some degree of familiarity with Grafana).
+
+## Load up the dashboard on Grafana
+A pre-defined Grafana dashboard has to be load up on the system, which is located in docker/grafana/provisioning/dashboads/
