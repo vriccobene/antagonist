@@ -30,6 +30,11 @@ That docker compose will spin up 4 containers: grafana, influxDB, antagonist, po
 ## Prepare the data
 After deploying the containers, you will need to add the data to InfluxDB.
 This can be done by using the provided script to load up the data (script provided in the scripts directory).
+
+    cd scripts/data_load
+    python -m pip install -r requirements.txt
+    python load_data.py
+
 If you want to use that script to load up the data, data file is avaialable here: https://github.com/cisco-ie/telemetry/blob/master/2/bgpclear.csv.zip
 
 (But it should be relatively easy to work with different data, if you have some degree of familiarity with Grafana).
