@@ -29,22 +29,30 @@ def main():
     influx_api = client.write_api(write_opton=SYNCHRONOUS)
 
     # Prepare and store data points
-    points = []
-    for index, row in df.iterrows():
-        # Adjust timestamp to fall within the retention period
-        timestamp = f"1697{str(index)[4:]}"
+    step = 1000
+    start, end = 0, step
+    while True:
+        points = []
+        for index, row in df[start: end].iterrows():
+            # Adjust timestamp to fall within the retention period
+            import time
+            timestamp = f"{str(time.time())[0:4]}{str(index)[4:]}"
 
-        for col in row.index:
-            # Do not store categorical metrics
-            if isinstance(row[col], str):
-                continue
-            # Skip nan values
-            if row[col] == 'NaN' or math.isnan(row[col]):
-                continue
-            field = f'{col}="{row[col]}"' if isinstance(row[col], str) else f'{col}={row[col]}'
-            points.append(f"{MEASUREMENT},test=1 {field} {timestamp}")
+            for col in row.index:
+                # Do not store categorical metrics
+                if isinstance(row[col], str):
+                    continue
+                # Skip nan values
+                if row[col] == 'NaN' or math.isnan(row[col]):
+                    continue
+                field = f'{col}="{row[col]}"' if isinstance(row[col], str) else f'{col}={row[col]}'
+                points.append(f"{MEASUREMENT},test=1 {field} {timestamp}")
 
-    influx_api.write(INFLUX_BUCKET, INFLUX_ORG, points)
+        res = influx_api.write(INFLUX_BUCKET, INFLUX_ORG, points)
+        print(res)
+        start, end = end, end + step
+        print(f"DF [{start}: {end}] - points: {len(points)}")
+        points = list()
 
 
 if __name__ == "__main__":
