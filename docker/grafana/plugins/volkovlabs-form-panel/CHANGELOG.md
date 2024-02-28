@@ -1,5 +1,66 @@
 # Change Log
 
+## 3.6.0 (2023-01-10)
+
+### Features / Enhancements
+
+- Add backend service to custom code (#331)
+- Add support for file base64 encoding in payload (#331)
+- Add Context parameter to Payload (#331)
+
+### Bugfixes
+
+- Fix element custom options source (#334)
+
+## 3.5.0 (2023-01-04)
+
+### Features / Enhancements
+
+- Add disable if code (#321)
+- Update reset request visibility if reset button is hidden (#322)
+- Add code options source for select element (#323)
+- Add value changed code (#324)
+- Update to Node 20 (#326)
+- Add suggestions for code editors (#327)
+- Add reset button confirmation (#328)
+
+## 3.4.0 (2023-12-14)
+
+### Features / Enhancements
+
+- Add ability to disable panel syncing (#298)
+- Update ESLint configuration and refactor (#299)
+- Update Collapse from @volkovlabs/components (#299)
+- Add EventBus and AppEvents to Context (#307)
+- Add replacing variables in Payload functions (#309)
+- Update to Grafana 10.2.2 and Volkov labs packages (#313)
+- Add options migration (#315)
+
+### Bugfixes
+
+- Fix draggable control to support upcoming Grafana changes (#314)
+
+## 3.3.0 (2023-11-21)
+
+### Features / Enhancements
+
+- Add Disabled Text Area element type (#243)
+- Add Confirmation Window options (#242)
+- Add context object to the custom code (#255)
+- Add Select Options From Query (#254)
+- Add NumberInput component which allows to enter decimals (#291)
+- Update to Plugin Tools 2.1.1 (#292)
+- Use Grafana Access Policy to sign plugin (#292)
+- Update to Grafana 10.2.1 (#292)
+- Update ESLint configuration (#294)
+- Add Autosize Code Editor (#295)
+- Add Data Source option for Reset button (#296)
+- Add Link Element (#297)
+
+### Bugfixes
+
+- Allow to enter zero value in number field (#288)
+
 ## 3.2.1 (2023-09-07)
 
 ### Features / Enhancements

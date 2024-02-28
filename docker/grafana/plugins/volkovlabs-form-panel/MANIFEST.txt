@@ -8,31 +8,31 @@ Hash: SHA512
   "signedByOrg": "volkovlabs",
   "signedByOrgName": "Volkov Labs",
   "plugin": "volkovlabs-form-panel",
-  "version": "3.2.1",
-  "time": 1694092041693,
+  "version": "3.6.0",
+  "time": 1704904754761,
   "keyId": "7e4d0c6a708866e7",
   "files": {
-    "module.js.map": "fcb98109c2104e50dc365ef9e9caa9a983fbe64c34653094b0a63b7d4a90fcec",
-    "img/logo.svg": "a4a44b2d994ab911e499a1ee150b254cf34c13829254bd399a3d4bfc742e2415",
+    "CHANGELOG.md": "6d9a6e54b8f9ccfcb0b5059a609e5a9e3b6f259fe9f525d5aa619abdbb717c7f",
     "img/elements.png": "89271ee1e246c51e88fb030cf4a90090bf97585536aeef4e6d99e453ce8ccf3e",
-    "img/panel.png": "7966ac485cf7b6179023aec7569e64cdf2e03b0e1409c9257cdb64eae7869b9c",
+    "img/logo.svg": "a4a44b2d994ab911e499a1ee150b254cf34c13829254bd399a3d4bfc742e2415",
     "img/request.png": "6a5bd6750b9914c8ee327107ccb1cfe68ea717f1655e23e556e8ebb4abd268b7",
-    "README.md": "f11d49952a51842693ebf11d9233dcbcb737aec4b5032283b4b4a3cd62435489",
-    "CHANGELOG.md": "d48636e19411c56a26cc7757369231ae69ced99bc6c4b244d71441c67689cb74",
+    "img/panel.png": "7966ac485cf7b6179023aec7569e64cdf2e03b0e1409c9257cdb64eae7869b9c",
     "module.js.LICENSE.txt": "a38486143894f3983170d896f8ba530930da8ac23d8e377bb4cea077d292099f",
-    "LICENSE": "48c3bee062b126fb735f5161697ea7cec41c0946251e1107989456112bce5c6d",
-    "module.js": "5b49b1ce4a4805414b447461da4ca2d43c5c8c26c66921b4665c71c446d3d551",
-    "plugin.json": "cb5d21f5fefe3e77216afa29720266f33f02e7dad3e1e333f877e5cbeb0523ec"
+    "plugin.json": "ba58b4b02c36fabe97f6c80857a28390e975bdd7fb190bf4cf8acc761291872c",
+    "module.js.map": "b29cb0bb2cd9c53a90facc64b59dcf1a9c076e8e31ea6f9b6dc84736e08c2060",
+    "LICENSE": "122f29b3b6f2a0d5ea3cd3d770c297b9582e03bc1aaaf0f3e0bd751011b8aefe",
+    "module.js": "9e3d624c64a32812350dbf27c0cf1027e6e6e1a64f07dc4ab9b4eb45250be7a0",
+    "README.md": "2e9ad6c59eaa29659c030862d4a2ac68df347e70c08d7ae7901abd8dc1f97b37"
   }
 }
 -----BEGIN PGP SIGNATURE-----
 Version: OpenPGP.js v4.10.10
 Comment: https://openpgpjs.org
 
-wrgEARMKAAYFAmT5ywoAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
-cIhm50YPAgirjygqTCRCjYEuduM9X+Xei4UfbrBbJ80Wa0b1YpEko67vYlxH
-EZ4thhKpQddQCKlLa1jlO9YLvxYKR95bkKj8vAIJAdu8UzKCnupIan1PnN69
-uhKmCBXfjN+mSC6VYZC2ics8E15Y+5NgFzMoMq8sop3/AkpBR4f1HLdYyi3o
-SzHRgJXZ
-=nLvs
+wrgEARMKAAYFAmWeyDIAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
+cIhm552XAgkBbWHHgAPvVdcC4Jos7sABEqlyN225YeZrKYMvCGvkN3BwnWkG
+33j8mL56wBwa3G1LBWu9Hxj4I1DbaupR5QXWtxwCB1nvVP9x5Jl+n+CSfVyD
+NgN5ePEfEPHxXt99GOBIi2YpMXypxul9jE6wWLZJu/1dr1LpWitVMK0BSe8g
+pGjXFX1/
+=D6rq
 -----END PGP SIGNATURE-----
