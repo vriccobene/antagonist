@@ -1,3 +1,4 @@
+import time
 import math
 import pandas
 import pathlib
@@ -35,8 +36,7 @@ def main():
         points = []
         for index, row in df[start: end].iterrows():
             # Adjust timestamp to fall within the retention period
-            import time
-            timestamp = f"{str(time.time())[0:4]}{str(index)[4:]}"
+            timestamp = f"{str(time.time())[0:6]}{str(index)[6:]}"
 
             for col in row.index:
                 # Do not store categorical metrics

@@ -11,33 +11,29 @@ layout = html.Div(
         html.Div(id="page-name", children=["index"], style={"display": "none"}),
         html.Div(id="page-content", children=[
             html.Div(children=[
-                dbc.Row([html.H1("Network Anomalies")]),
-                dag.AgGrid(
-                    id="network-anomaly-table",
-                    className="ag-theme-alpine selection",
-                    columnDefs=network_anomaly_api.get_network_anomaly_col_def(),
-                    rowData=network_anomaly_api.get_network_anomalies(),
-                    columnSize="sizeToFit",
-                    style={"height": 300, "width": "100%"},
-                    dashGridOptions={
-                        'rowSelection': 'single', 
-                        'suppressRowClickSelection': True, 
-                        'enableCellTextSelection': True, 
-                        'ensureDomOrder': True,
-                        "suppressCellFocus": True, "animateRows": False
-                    }
-                ),
-                dbc.Row([dbc.Col(dbc.Button("Visualize Details", id='network-anomaly-visualize-button'), width=1)])
-            ], style={"margin": "1%"}),
-            html.Div(),
-            html.Div(children=[
-                dbc.Row(
-                    [
-                        dbc.Col(html.H1("Network Anomaly Stages"), width=6),
-                        dbc.Col(html.H1("Symptoms"), width=6),
-                    ]),
-                    
                 dbc.Row([
+                    dbc.Col(html.H1("Network Anomalies"), width=3),
+                    dbc.Col(html.H1("Network Anomaly Stages"), width=9)
+                ]),
+                dbc.Row([
+                    dbc.Col(
+                        dag.AgGrid(
+                            id="network-anomaly-table",
+                            className="ag-theme-alpine selection",
+                            columnDefs=network_anomaly_api.get_network_anomaly_col_def(),
+                            rowData=network_anomaly_api.get_network_anomalies(),
+                            columnSize="sizeToFit",
+                            style={"height": 300, "width": "100%"},
+                            dashGridOptions={
+                                'rowSelection': 'single', 
+                                'suppressRowClickSelection': True, 
+                                'enableCellTextSelection': True, 
+                                'ensureDomOrder': True,
+                                "suppressCellFocus": True, "animateRows": False
+                            }
+                        ), width=2
+                    ),
+                    dbc.Col(dbc.Button("Visualize Details", id='network-anomaly-visualize-button'), width=1),
                     dbc.Col(
                         dag.AgGrid(
                             id="network-anomaly-history-table",
@@ -53,7 +49,18 @@ layout = html.Div(
                                 'ensureDomOrder': True,
                                 "suppressCellFocus": True, "animateRows": False
                             }
-                        ), width=5),
+                        ), width=9)
+                ])
+            ], style={"margin": "1%"}),
+            html.Div(),
+            html.Div(children=[
+                dbc.Row(
+                    [
+                        dbc.Col(html.H1("Network Anomaly Stages"), width=6),
+                        dbc.Col(html.H1("Symptoms"), width=6),
+                    ]),
+                    
+                dbc.Row([
                     dbc.Col([
                         dbc.Button("Inspect", id='network-anomaly-inspect-button', style={"width": "100%"}),
                         dbc.Button("Add New Version", id='network-anomaly-add-new-version-button', style={"width": "100%"})
@@ -94,10 +101,9 @@ def network_anomaly_detail_visualization_button_clicked(rows, n_clicks):
     if n_clicks is None:
         return []
     row = rows[0]
-# TODO: Get symptom IDs from the Incident
+    # TODO: Get symptom IDs from the Incident
     symptom_ids = ["2fc901ba-c941-4dba-a3a6-94ca3618a24d"]
     return symptom_api.get_symptoms(subset=False, symptom_ids=symptom_ids)
-
 
 
 @service.app.callback(
@@ -109,4 +115,5 @@ def network_anomaly_detail_visualization_button_clicked(rows, n_clicks):
     if n_clicks is None:
         return []
     row = rows[0]
-    return network_anomaly_api.get_network_anomalies(subset=False, network_anomaly_id=row.get("ID"))
+    return network_anomaly_api.get_network_anomalies(
+        subset=False, network_anomaly_description=row.get("Description"))

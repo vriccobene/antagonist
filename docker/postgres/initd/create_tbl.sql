@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS "incident" (
     version INTEGER NOT NULL,
     state VARCHAR(100) NOT NULL,
     PRIMARY KEY(id, version, state)
+    -- TODO Add foreing key to author
 );
 
 CREATE TABLE IF NOT EXISTS "author" (
@@ -27,7 +28,7 @@ CREATE TABLE IF NOT EXISTS "author" (
     name VARCHAR(200) NOT NULL,
     author_type VARCHAR(100) NOT NULL,
     version INTEGER,
-    PRIMARY KEY(name, author_type, version)
+    PRIMARY KEY(name, author_type)
 );
 
 -- CREATE TABLE
@@ -37,9 +38,9 @@ CREATE TABLE IF NOT EXISTS "symptom" (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     event_id uuid,
     plane VARCHAR(1000),
-    condition VARCHAR(1000),
     action VARCHAR(1000),
     cause VARCHAR(1000),
+    reason VARCHAR(1000),
     pattern VARCHAR(1000),
     source_name VARCHAR(1000),
     source_type VARCHAR(1000),
@@ -56,14 +57,9 @@ CREATE TABLE IF NOT EXISTS "symptom" (
 CREATE TABLE IF NOT EXISTS "tag" (
   symptom_id uuid NOT NULL,
   tag_key VARCHAR(100) NOT NULL,
-  tag_value VARCHAR(100),
+  tag_value VARCHAR(1000),
   PRIMARY KEY(symptom_id, tag_key, tag_value)
-);
-
-CREATE TABLE IF NOT EXISTS "tag" (
-    tag_id VARCHAR(1000),
-    symptom_id INTEGER NOT NULL,
-    PRIMARY KEY(tag_id, symptom_id)
+  -- TODO Add foreing key to symptom
 );
 
 -- CREATE TABLE
