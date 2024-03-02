@@ -12,5 +12,5 @@ RUN pip install --trusted-host pypi.python.org -r /antagonist-frontend/requireme
 COPY . /antagonist-frontend/
 
 # Run app.py when the container launches
-ENV PYTHONPATH "${PYTHONPATH}:/frontend"
+ENV PYTHONPATH "${PYTHONPATH}:/antagonist-frontend"
 CMD ["python", "/antagonist-frontend/service.py"]

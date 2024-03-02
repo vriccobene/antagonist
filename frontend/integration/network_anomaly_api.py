@@ -33,13 +33,13 @@ column_fullset = ["ID", "Description", "Author Name", "Version", "State"]
 
 def _retrieve_network_anomalies():
     # TODO: Replace with call to the API
-    response = requests.get("http://localhost:5001/api/rest/v1/incident")
+    """ response = requests.get("http://localhost:5001/api/rest/v1/incident")
     if response.status_code == 200:
         network_anomalies = response.json()
         return _postprocess_network_anomalies(network_anomalies)
     else:
-        raise Exception("Failed to retrieve network anomalies from the API")
-    # return network_anomaly_data
+        raise Exception("Failed to retrieve network anomalies from the API") """
+    return network_anomaly_data
 
 
 def _postprocess_network_anomalies(net_anomalies:dict):
@@ -82,3 +82,13 @@ def get_network_anomaly_col_def(subset=True):
 def get_network_anomaly(network_anomaly_id: uuid.UUID):
     # TODO Replace with call to the API
     return next(net_anomaly for net_anomaly in network_anomaly_data if net_anomaly.get('ID') == network_anomaly_data)
+
+def update_network_anomaly(network_anomaly_id: uuid.UUID, network_anomaly_record:dict):
+    # TODO Replace with call to the API
+    for i, v in enumerate(network_anomaly_data):
+        if v['ID'] == network_anomaly_record['ID']:
+            break
+    
+    network_anomaly_data[i] =network_anomaly_record
+
+    return True
