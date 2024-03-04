@@ -4,7 +4,7 @@ import logging
 from urllib.parse import urlparse, parse_qs
 from flask import Flask, jsonify, request
 from database import postgresql
-from domain import incident as inc, symptom as sym
+from domain import incident as inc, symptom as sym, symptom_to_incident as sti
 
 logging.basicConfig(level=env.LOGGING_LEVEL)
 logger = logging.getLogger(__name__)
@@ -37,10 +37,17 @@ def symptom():
         return jsonify(symptom_id), 200
     if 'GET' == request.method:
         symptom_id = request.args.get('id', None)
-        db_res = database.get_symptom(symptom_id)
+        incident_id = request.args.get('incident-id', None)
+        start_time = request.args.get('start-time', None)
+        end_time = request.args.get('end-time', None)
+        db_res = database.get_symptom(
+            symptom_id=symptom_id, incident_id=incident_id, 
+            start_time=start_time, end_time=end_time)
+        
         if not symptom_id:
             res = [dict(entry) for entry in db_res]
             return jsonify(res), 200
+            
         return jsonify(dict(db_res)), 200
 
 
@@ -69,6 +76,39 @@ def incident():
             res = [dict(entry) for entry in db_res]
             return jsonify(res), 200
         return jsonify(dict(db_res)), 200
+
+
+@app.route('/api/rest/v1/incident/symptom', methods=['POST', 'GET'])
+def symptom_to_incident():
+    """
+    Link a symptom to an incident
+    """
+    def _convert_to_dict(val):
+        {"symptom-id": val.symptom_id, "incident-id": val.get('incident-id')}
+
+    if 'POST' == request.method:
+        sym_to_inc_data = request.get_json()
+        logger.debug("Received new symptom to incident POST request")
+        logger.debug(f"Input Data: {sym_to_inc_data}")
+        try: 
+            sym_to_inc_obj = sti.SymptomToIncident(sym_to_inc_data)
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+        
+        # Store the incident in the database
+        try:
+            res = database.store_symptom_incident_relation(sym_to_inc_obj)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+        return jsonify(res), 200
+
+    if 'GET' == request.method:
+        incident_id = request.args.get('incident-id', None)
+        db_res = database.get_symptom_to_incident(incident_id)
+        if not incident_id:
+            return [], 200
+        res = [dict(entry) for entry in db_res]
+        return jsonify(res), 200
 
 
 # @app.route('/api/rest/v1/incident_list', methods=['GET'])

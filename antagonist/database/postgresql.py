@@ -1,7 +1,7 @@
 import uuid
 import psycopg2, psycopg2.extras
 from config import env
-from domain import symptom, incident
+from domain import symptom, incident, symptom_to_incident
 from database import database_base
 
 import logging
@@ -151,7 +151,66 @@ class PostgresqlDatabase(database_base.DatabaseBase):
             logger.error("Error while storing symptom:", error)
             return None
 
-    def get_symptom(self, symptom_id:uuid.uuid4=None):
+    def store_symptom_incident_relation(
+            self, symptom_to_incident:symptom_to_incident.SymptomToIncident):
+        """
+        Stores the relation between a symptom and an incident in the PostgreSQL database.
+
+        Parameters:
+        - symptom_id (uuid.uuid4): The ID of the symptom.
+        - incident_id (uuid.uuid4): The ID of the incident.
+        """
+        try:
+            cols = PostgresqlDatabase._format_for_sql(str(symptom_to_incident.get_field_keys()))
+            values = symptom_to_incident.get_field_values()
+            cursor = self.connection.cursor()
+            cursor.execute(
+                f"INSERT INTO incident_contains_symptom {cols} " \
+                "VALUES (%s, %s)", tuple(values)
+            )
+            self.connection.commit()
+            return True
+        except (Exception, psycopg2.Error) as error:
+            self.connection.rollback()
+            logger.error("Error while storing symptom-incident relation:", error)
+            return False
+
+    # def get_symptom_to_incident(self, incident_id:uuid.uuid4):
+    #     """
+    #     Retrieves the relation between a symptom and an incident from the PostgreSQL database.
+
+    #     Parameters:
+    #     - incident_id (uuid.uuid4): The ID of the incident.
+
+    #     Returns:
+    #     - symptom_to_incident (tuple): The retrieved relation between a symptom and an incident as a tuple.
+    #     """
+
+    #     def _convert_to_object(val):
+    #         return symptom_to_incident.SymptomToIncident({
+    #             "incident-id": str(val[0]),
+    #             "symptom-id": str(val[1])
+    #         })
+        
+    #     if incident_id is None:
+    #         return None
+
+    #     try:
+    #         cursor = self.connection.cursor()
+    #         query = "SELECT incident_id, symptom_id FROM incident_contains_symptom WHERE incident_id = %s"
+    #         values = (incident_id,)
+    #         cursor.execute(query, values)
+    #         symptom_to_incident_list = cursor.fetchall()
+    #         logger.debug(f"Retrieved symptom-incident relations: {symptom_to_incident_list}")
+    #         logger.info("Symptom-incident relations retrieved successfully!")
+    #         return [_convert_to_object(entry) for entry in symptom_to_incident_list] or None
+    #     except (Exception, psycopg2.Error) as error:
+    #         self.connection.rollback()
+    #         logger.error("Error while retrieving symptom-incident relation:", error)
+
+    def get_symptom(
+            self, symptom_id:uuid.uuid4=None, incident_id:uuid.uuid4=None, 
+            start_time:str=None, end_time:str=None):
         """
         Retrieves a symptom from the PostgreSQL database.
 
@@ -187,7 +246,25 @@ class PostgresqlDatabase(database_base.DatabaseBase):
 
         try:
             cursor = self.connection.cursor()
-            if not symptom_id:
+
+            if start_time and end_time:
+                # Retrieve all symptoms within a time range
+                # TODO: Finish this method!
+                query = "SELECT " \
+                        "id, event_id, start_time, end_time, descript, confidence_score, " \
+                        "concern_score, plane, reason, action, cause, pattern, " \
+                        "source_type, source_name " \
+                        "FROM symptom " \
+                        "WHERE (start_time >= %s AND start_time <= %s) OR " \
+                              "(end_time >= %s AND end_time <= %s) OR " \
+                              "(start_time <= %s AND end_time >= %s)"
+                values = (start_time, end_time, start_time, end_time, end_time, start_time,)
+                cursor.execute(query, values)
+                symptom_list = cursor.fetchall()
+                logger.debug(f"Retrieved symptoms: {symptom_list}")
+                logger.info("Symptoms retrieved successfully!")
+                return [_convert_to_obj(symptom_val) for symptom_val in symptom_list] or []
+            if not symptom_id and not incident_id:
                 cursor.execute(
                     "SELECT " \
                     "id, event_id, start_time, end_time, descript, confidence_score, " \
@@ -196,9 +273,9 @@ class PostgresqlDatabase(database_base.DatabaseBase):
                 symptom_list = cursor.fetchall()
                 logger.debug(f"Retrieved symptoms: {symptom_list}")
                 logger.info("Symptoms retrieved successfully!")
-                return [_convert_to_obj(symptom_val) for symptom_val in symptom_list] or None
-            else:
-                query = "SELECT " \
+                return [_convert_to_obj(symptom_val) for symptom_val in symptom_list] or []
+            elif not incident_id:
+                query = "SELECT symptom.* " \
                     "id, event_id, start_time, end_time, descript, confidence_score, " \
                     "concern_score, plane, reason, action, cause, pattern, source_type, source_name " \
                     " FROM symptom WHERE id = %s"
@@ -210,19 +287,27 @@ class PostgresqlDatabase(database_base.DatabaseBase):
                 logger.debug(f"Retrieved symptom: {symptom_obj}")
                 logger.info("Symptom retrieved successfully!")
                 return symptom_obj
+            else:
+                # Retrieve all symptoms associated with an incident
+                query = "SELECT " \
+                        "symptom.id, symptom.event_id, symptom.start_time, symptom.end_time, " \
+                        "symptom.descript, symptom.confidence_score, symptom.concern_score, " \
+                        "symptom.plane, symptom.reason, symptom.action, symptom.cause, " \
+                        "symptom.pattern, symptom.source_type, symptom.source_name " \
+                        "FROM symptom " \
+                        "INNER JOIN incident_contains_symptom " \
+                        "ON symptom.id=incident_contains_symptom.symptom_id " \
+                        "WHERE incident_contains_symptom.incident_id = %s"
+                values = (incident_id,)
+                cursor.execute(query, values)
+                symptom_list = cursor.fetchall()
+                
+                logger.info("Symptoms retrieved successfully!")
+                # TODO Adjust fields, as there might be too many!
+                return [_convert_to_obj(symptom_val) for symptom_val in symptom_list] or []
+
         except (Exception, psycopg2.Error) as error:
             logger.error("Error while retrieving symptom:", error)
-
-        # try:
-        #     cursor = self.connection.cursor()
-        #     query = "SELECT * FROM symptoms WHERE id = %s"
-        #     values = (symptom_id,)
-        #     cursor.execute(query, values)
-        #     symptom = cursor.fetchone()
-        #     logger.info("Symptom retrieved successfully!")
-        #     return symptom
-        # except (Exception, psycopg2.Error) as error:
-        #     logger.error("Error while retrieving symptom:", error)
 
     def _store_symptom(self, cursor, symptom:symptom.Symptom):
         """
