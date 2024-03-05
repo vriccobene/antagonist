@@ -197,7 +197,7 @@ layout = html.Div(
                                                                     "Author Name"
                                                                 ),
                                                                 dbc.Input(
-                                                                    id="network-anomaly-add-new-version-modal-input-auth"
+                                                                    id="network-anomaly-add-new-version-input-auth"
                                                                 ),
                                                             ],
                                                             className="mb-3",
@@ -234,7 +234,7 @@ layout = html.Div(
                                                                             "value": "Adjusted",
                                                                         },
                                                                     ],
-                                                                    id="network-anomaly-add-new-version-modal-input-state",
+                                                                    id="network-anomaly-add-new-version-input-state",
                                                                 ),
                                                             ],
                                                             className="mb-3",
@@ -250,7 +250,11 @@ layout = html.Div(
                                                                 dbc.InputGroupText(
                                                                     "Start"
                                                                 ),
-                                                                dbc.Input(id="date-input", type="date", placeholder="Select a date"),
+                                                                dbc.Input(
+                                                                    id="date-input-start",
+                                                                    type="date",
+                                                                    placeholder="Select a date",
+                                                                ),
                                                             ],
                                                             className="mb-3",
                                                         ),
@@ -259,11 +263,16 @@ layout = html.Div(
                                                                 dbc.InputGroupText(
                                                                     "Start time"
                                                                 ),
-                                                                dbc.Input(type="time", placeholder="Select a date"),
+                                                                dbc.Input(
+                                                                    type="time",
+                                                                    id="time-input-start",
+                                                                    placeholder="Select a date",
+                                                                ),
                                                             ],
                                                             className="mb-3",
                                                         ),
-                                                    ], xxl=2
+                                                    ],
+                                                    xxl=2,
                                                 ),
                                                 dbc.Col(
                                                     [
@@ -272,7 +281,11 @@ layout = html.Div(
                                                                 dbc.InputGroupText(
                                                                     "End"
                                                                 ),
-                                                                dbc.Input(id="date-input", type="date", placeholder="Select a date"),
+                                                                dbc.Input(
+                                                                    id="date-input-end",
+                                                                    type="date",
+                                                                    placeholder="Select a date",
+                                                                ),
                                                             ],
                                                             className="mb-3",
                                                         ),
@@ -281,20 +294,28 @@ layout = html.Div(
                                                                 dbc.InputGroupText(
                                                                     "End time"
                                                                 ),
-                                                                dbc.Input(type="time", placeholder="Select a date"),
+                                                                dbc.Input(
+                                                                    type="time",
+                                                                    id="time-input-end",
+                                                                    placeholder="Select a date",
+                                                                ),
                                                             ],
                                                             className="mb-3",
                                                         ),
-                                                    ], xxl=2
+                                                    ],
+                                                    xxl=2,
                                                 ),
                                                 dbc.Col(
                                                     [
                                                         dbc.Button(
                                                             "Search",
-                                                            #id="network-anomaly-visualize-button",
-                                                            style={"visibility": "initial"},
+                                                            id="network-anomaly-add-new-version-search-sympt",
+                                                            style={
+                                                                "visibility": "initial"
+                                                            },
                                                         ),
-                                                    ], xxl=1
+                                                    ],
+                                                    xxl=1,
                                                 ),
                                             ]
                                         ),
@@ -313,7 +334,7 @@ layout = html.Div(
                                                                 "width": "100%",
                                                             },
                                                             dashGridOptions={
-                                                                "rowSelection": "single",
+                                                                "rowSelection": "multiple",
                                                                 "suppressRowClickSelection": True,
                                                                 "enableCellTextSelection": True,
                                                                 "ensureDomOrder": True,
@@ -324,29 +345,38 @@ layout = html.Div(
                                                     ],
                                                     xxl=5,
                                                 ),
-                                                dbc.Col([
-                                                    dbc.Button(
-                                                        "Delete symptom",
-                                                        #id="network-anomaly-visualize-button",
-                                                        style={"visibility": "hidden"},
-                                                    ),
-                                                    html.Div(
-                                                        style={"margin": "15px"}
-                                                    ),
-                                                    dbc.Button(
-                                                        "Delete symptom",
-                                                        #id="network-anomaly-visualize-button",
-                                                        style={"visibility": "initial"},
-                                                    ),
-                                                    html.Div(
-                                                        style={"margin": "15px"}
-                                                    ),
-                                                    dbc.Button(
-                                                        "Add symptom",
-                                                        #id="network-anomaly-visualize-button",
-                                                        style={"visibility": "initial"},
-                                                    ),
-                                                ], xxl=1),
+                                                dbc.Col(
+                                                    [
+                                                        dbc.Button(
+                                                            "Add symptom",
+                                                            id="network-anomaly-add-new-version-add-sympt",
+                                                            style={
+                                                                "visibility": "initial"
+                                                            },
+                                                        ),
+                                                        html.Div(
+                                                            style={"margin": "15px"}
+                                                        ),
+                                                        dbc.Button(
+                                                            "Delete symptom",
+                                                            id="network-anomaly-add-new-version-del-sympt",
+                                                            style={
+                                                                "visibility": "initial"
+                                                            },
+                                                        ),
+                                                        html.Div(
+                                                            style={"margin": "15px"}
+                                                        ),
+                                                        dbc.Button(
+                                                            "Submit version",
+                                                            id="network-anomaly-add-new-version-submit",
+                                                            style={
+                                                                "visibility": "initial"
+                                                            },
+                                                        ),
+                                                    ],
+                                                    xxl=1,
+                                                ),
                                                 dbc.Col(
                                                     [
                                                         dag.AgGrid(
@@ -360,7 +390,7 @@ layout = html.Div(
                                                                 "width": "100%",
                                                             },
                                                             dashGridOptions={
-                                                                "rowSelection": "single",
+                                                                "rowSelection": "multiple",
                                                                 "suppressRowClickSelection": True,
                                                                 "enableCellTextSelection": True,
                                                                 "ensureDomOrder": True,
@@ -554,20 +584,6 @@ def network_anomaly_symptom_visualization_button_show(rows):
 
 
 @service.app.callback(
-    Output("symptom-table", "rowData"),
-    State("network-anomaly-history-table", "selectedRows"),
-    Input("network-anomaly-inspect-button", "n_clicks"),
-)
-def network_anomaly_detail_visualization_button_clicked(rows, n_clicks):
-    if n_clicks is None:
-        return []
-    row = rows[0]
-    # TODO: Get symptom IDs from the Incident
-    symptom_ids = ["2fc901ba-c941-4dba-a3a6-94ca3618a24d"]
-    return symptom_api.get_symptoms(subset=False, symptom_ids=symptom_ids)
-
-
-@service.app.callback(
     Output("network-anomaly-history-table", "rowData", allow_duplicate=True),
     State("network-anomaly-table", "selectedRows"),
     Input("network-anomaly-visualize-button", "n_clicks"),
@@ -582,68 +598,157 @@ def network_anomaly_detail_visualization_button_clicked(rows, n_clicks):
     )
 
 
-# Callback open the modal to add a new version of a network incident
+@service.app.callback(
+    Output("symptom-table", "rowData"),
+    State("network-anomaly-history-table", "selectedRows"),
+    Input("network-anomaly-inspect-button", "n_clicks"),
+)
+def network_anomaly_detail_inspect_button_clicked(rows, n_clicks):
+    if n_clicks is None or n_clicks == 0:
+        return no_update
+
+    row = rows[0]
+    # TODO: Get symptom IDs from the Incident
+    symptom_ids = ["2fc901ba-c941-4dba-a3a6-94ca3618a24d"]
+    return symptom_api.get_symptoms(subset=False, symptom_ids=symptom_ids)
 
 
 @service.app.callback(
-    Output("network-anomaly-add-new-version-modal", "is_open", allow_duplicate=True),
-    Output("network-anomaly-add-new-version-modal-head", "children"),
-    Output("network-anomaly-add-new-version-modal-input-auth", "value"),
-    Output("network-anomaly-add-new-version-modal-input-state", "value"),
-    Output("network-anomaly-tabs", "active_tab"),
+    Output("network-anomaly-add-new-version-input-auth", "value"),
+    Output("network-anomaly-add-new-version-input-state", "value"),
+    Output("new-version-symptom-table-current", "rowData", allow_duplicate=True),
+    Output("network-anomaly-tabs", "active_tab", allow_duplicate=True),
     Input("network-anomaly-add-new-version-button", "n_clicks"),
-    State("network-anomaly-history-table", "rowData"),
-    State("network-anomaly-add-new-version-modal", "is_open"),
+    State("network-anomaly-table", "selectedRows"),
     prevent_initial_call="initial_duplicate",
 )
-def network_anomaly_detail_visualization_button_new_vesion(n_clicks, rows, is_open):
+def network_anomaly_detail_inspect_button_add_new_vesion(n_clicks, rows):
 
-    # No incidents selected
-    rows.sort(key=lambda x: x["Version"])
-    if rows is None or len(rows) == 0:
-        return False, "", "", "FORECASTED", no_update
+    if n_clicks is None or n_clicks == 0:
+        return no_update, no_update, no_update, no_update
+
+    # Get last version
+    history = network_anomaly_api.get_network_anomalies(
+        subset=False, network_anomaly_description=rows[0].get("Description")
+    )
+    history.sort(key=lambda x: x["Version"])
+
+    # TODO: Get symptom IDs from the Incident
+    symptom_ids = ["2fc901ba-c941-4dba-a3a6-94ca3618a24d"]
+    symptoms = symptom_api.get_symptoms(subset=False, symptom_ids=symptom_ids)
 
     return (
-        False,
-        f"{rows[-1]['ID']} - Version {rows[-1]['Version']+1}",
-        rows[-1]["Author Name"],
-        rows[-1]["State"],
+        history[-1]["Author Name"],
+        history[-1]["State"],
+        symptoms,
         "network-anomaly-tabs-new-version",
     )
 
 
-# Callback close the modal to add a new version of a network incident
+# Add version section callbacks
 
 
 @service.app.callback(
-    Output("network-anomaly-add-new-version-modal", "is_open", allow_duplicate=True),
     Output("network-anomaly-history-table", "rowData", allow_duplicate=True),
-    Input("network-anomaly-add-new-version-modal-submit", "n_clicks"),
+    Output("network-anomaly-tabs", "active_tab", allow_duplicate=True),
+    Input("network-anomaly-add-new-version-submit", "n_clicks"),
     State("network-anomaly-table", "selectedRows"),
     State("network-anomaly-history-table", "rowData"),
-    State("network-anomaly-add-new-version-modal-input-auth", "value"),
-    State("network-anomaly-add-new-version-modal-input-state", "value"),
+    State("network-anomaly-add-new-version-input-auth", "value"),
+    State("network-anomaly-add-new-version-input-state", "value"),
+    State("new-version-symptom-table-current", "rowData"),
     prevent_initial_call="initial_duplicate",
 )
-def network_anomaly_detail_visualization_new_vesion_modal_close(
-    n_clicks, rows, selectedRows, n_auth, n_state
+def network_anomaly_new_vesion_submit(
+    n_clicks, rows, selectedRows, n_auth, n_state, n_symptoms
 ):
     # Initial callback
     if n_clicks is None:
         return no_update, no_update
 
-    # No incidents selected
-    selectedRows.sort(key=lambda x: x["Version"])
-
-    out = selectedRows[-1]
+    # Get last version
+    history = network_anomaly_api.get_network_anomalies(
+        subset=False, network_anomaly_description=rows[0].get("Description")
+    )
+    history.sort(key=lambda x: x["Version"])
+    out = history[-1]
 
     out["Version"] += 1
     out["Author Name"] = n_auth
     out["State"] = n_state
 
-    success = network_anomaly_api.update_network_anomaly(out["ID"], out)
+    success = network_anomaly_api.update_network_anomaly(out["ID"], out, n_symptoms)
 
-    return False, network_anomaly_detail_visualization_button_clicked(rows, 1)
+    return (
+        network_anomaly_detail_visualization_button_clicked(rows, 1),
+        "network-anomaly-tabs-details",
+    )
+
+
+@service.app.callback(
+    Output("new-version-symptom-table-current", "rowData", allow_duplicate=True),
+    Input("network-anomaly-add-new-version-del-sympt", "n_clicks"),
+    State("new-version-symptom-table-current", "rowData"),
+    State("new-version-symptom-table-current", "selectedRows"),
+    prevent_initial_call="initial_duplicate",
+)
+def network_anomaly_new_vesion_delete_symptom(n_clicks, rowData, selectedRows):
+    # Initial callback
+    if n_clicks is None or len(selectedRows) == 0:
+        return no_update
+
+    # TODO call also the related API
+    for r in selectedRows:
+        del rowData[rowData.index(r)]
+
+    return rowData
+
+
+@service.app.callback(
+    Output("new-version-symptom-table-search", "rowData"),
+    Input("network-anomaly-add-new-version-search-sympt", "n_clicks"),
+    State("date-input-start", "value"),
+    State("date-input-end", "value"),
+    State("time-input-start", "value"),
+    State("time-input-end", "value"),
+    prevent_initial_call="initial_duplicate",
+)
+def network_anomaly_new_vesion_search_symptoms(
+    n_clicks,
+    start_date,
+    end_date,
+    start_time,
+    end_time,
+):
+    # Initial callback
+    if n_clicks is None or start_date is None or end_date is None or start_time is None or end_time is None:
+        return no_update
+
+    # TODO: Get symptom IDs from the Incident
+    symptom_ids = ["2fc901ba-c941-4dba-a3a6-94ca3618a24d"]
+    symptoms = symptom_api.get_symptoms(subset=False, symptom_ids=symptom_ids)
+
+    return symptoms
+
+@service.app.callback(
+    Output("new-version-symptom-table-current", "rowData", allow_duplicate=True),
+    Input("network-anomaly-add-new-version-add-sympt", "n_clicks"),
+    State("new-version-symptom-table-search", "selectedRows"),
+    State("new-version-symptom-table-current", "rowData"),
+    prevent_initial_call="initial_duplicate",
+)
+def network_anomaly_new_vesion_add_symptoms(
+    n_clicks,
+    selected_rows,
+    initial_rows,
+):
+    # Initial callback
+    if n_clicks is None or len(selected_rows)==0:
+        return no_update
+    
+    # TODO call also the related API
+
+    return initial_rows + selected_rows
 
 
 # Compare versions section callbacks
@@ -678,7 +783,7 @@ def network_anomaly_compare_versions_available(rows):
     Input("network-anomaly-table", "selectedRows"),
     Input("network-anomaly-compare-input-v1", "value"),
 )
-def network_anomaly_compare_versions_available(rows, selection):
+def network_anomaly_compare_versions_data_v1(rows, selection):
     if rows is None or len(rows) == 0 or selection is None:
         return "Author:", "State:", []
 
@@ -710,7 +815,7 @@ def network_anomaly_compare_versions_available(rows, selection):
     Input("network-anomaly-table", "selectedRows"),
     Input("network-anomaly-compare-input-v2", "value"),
 )
-def network_anomaly_compare_versions_available(rows, selection):
+def network_anomaly_compare_versions_data_v2(rows, selection):
     if rows is None or len(rows) == 0 or selection is None:
         return "Author:", "State:", []
 

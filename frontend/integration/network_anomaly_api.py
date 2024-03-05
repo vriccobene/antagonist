@@ -83,7 +83,7 @@ def get_network_anomaly(network_anomaly_id: uuid.UUID):
     # TODO Replace with call to the API
     return next(net_anomaly for net_anomaly in network_anomaly_data if net_anomaly.get('ID') == network_anomaly_data)
 
-def update_network_anomaly(network_anomaly_id: uuid.UUID, network_anomaly_record:dict):
+def update_network_anomaly(network_anomaly_id: uuid.UUID, network_anomaly_record:dict, network_anomaly_symptoms:list):
     # TODO Replace with call to the API
     network_anomaly_data.append(network_anomaly_record)
 
