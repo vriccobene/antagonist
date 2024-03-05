@@ -85,10 +85,6 @@ def get_network_anomaly(network_anomaly_id: uuid.UUID):
 
 def update_network_anomaly(network_anomaly_id: uuid.UUID, network_anomaly_record:dict):
     # TODO Replace with call to the API
-    for i, v in enumerate(network_anomaly_data):
-        if v['ID'] == network_anomaly_record['ID']:
-            break
-    
-    network_anomaly_data[i] =network_anomaly_record
+    network_anomaly_data.append(network_anomaly_record)
 
     return True
