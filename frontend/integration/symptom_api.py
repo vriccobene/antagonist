@@ -1,5 +1,6 @@
 import uuid
 import pandas as pd
+import requests
 
 
 symptom_data = [
@@ -84,8 +85,6 @@ symptom_data = [
         }
     },
 ]
-
-
 column_subset = [
     "ID", "description", "start-time", "end-time", 
     "confidence-score", "concern-score"
@@ -95,14 +94,29 @@ column_fullset = [
     "confidence-score", "concern-score", "plane", "condition", 
     "action", "cause", "pattern", "source-type", "source-name"]
 
-def get_symptoms(subset=True, symptom_ids=None, start_time=None, end_time=None):
-    # TODO: Replace with call to the Core Antagonist API
-    columns = column_subset if subset else column_fullset
-    df = pd.DataFrame.from_dict(symptom_data)
-    filter_df = df.drop_duplicates(subset=columns)
-    filter_df = df[df.ID.isin(symptom_ids)] if symptom_ids else filter_df
-    print(filter_df)
-    return filter_df[columns].to_dict('records')
+
+def get_symptoms(
+        subset=True, incident_id:str=None, symptom_id:str=None, 
+        start_time=None, end_time=None):
+    url = "http://localhost:5001/api/rest/v1/symptom"
+    # columns = column_subset if subset else column_fullset
+
+    params = {
+        "incident-id": incident_id,
+        "symptom-id": symptom_id,
+        "start-time": start_time,
+        "end-time": end_time
+    }
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    symptom_data = response.json()
+    
+    # df = pd.DataFrame.from_dict(symptom_data)
+    # filter_df = df.drop_duplicates(subset=columns)
+    # filter_df = df[df.ID.isin(symptom_ids)] if symptom_ids else filter_df
+    # print(filter_df)
+    # return filter_df[columns].to_dict('records')
+    return symptom_data
 
 
 def get_symptoms_col_def(subset=True):

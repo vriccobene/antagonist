@@ -592,6 +592,7 @@ def network_anomaly_symptom_visualization_button_show(rows):
 def network_anomaly_detail_visualization_button_clicked(rows, n_clicks):
     if n_clicks is None:
         return []
+<<<<<<< Updated upstream
     row = rows[0]
     return network_anomaly_api.get_network_anomalies(
         subset=False, network_anomaly_description=row.get("Description")
@@ -612,6 +613,10 @@ def network_anomaly_detail_inspect_button_clicked(rows, n_clicks):
     symptom_ids = ["2fc901ba-c941-4dba-a3a6-94ca3618a24d"]
     return symptom_api.get_symptoms(subset=False, symptom_ids=symptom_ids)
 
+=======
+    incident_id = rows[0].get('ID')
+    return symptom_api.get_symptoms(subset=False, incident_id=incident_id)
+>>>>>>> Stashed changes
 
 @service.app.callback(
     Output("network-anomaly-add-new-version-input-auth", "value"),
@@ -764,6 +769,7 @@ def network_anomaly_compare_versions_available(rows):
         return [], []
 
     row = rows[0]
+<<<<<<< Updated upstream
     annotation_history = network_anomaly_api.get_network_anomalies(
         subset=False, network_anomaly_description=row.get("Description")
     )
@@ -838,3 +844,8 @@ def network_anomaly_compare_versions_data_v2(rows, selection):
         f"State: {curr_version['State']}",
         symptoms,
     )
+=======
+    print(row)
+    return network_anomaly_api.get_network_anomalies(
+        subset=False, network_anomaly_description=row.get("Description"))
+>>>>>>> Stashed changes
