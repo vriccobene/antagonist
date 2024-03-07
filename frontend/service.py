@@ -6,6 +6,5 @@ import url_manager as url_manager
 home_url = "localhost:8050"
 service.app.layout = index_layout.layout
 
-
 if __name__ == "__main__":
-    service.app.run_server(debug=True)
+    service.app.run(debug=True,host="0.0.0.0",port=8050)
