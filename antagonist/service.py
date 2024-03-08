@@ -9,11 +9,7 @@ from domain import incident as inc, symptom as sym, symptom_to_incident as sti
 logging.basicConfig(level=env.LOGGING_LEVEL)
 logger = logging.getLogger(__name__)
 
-database = postgresql.PostgresqlDatabase(
-    env.POSTGRESQL_DB_HOST, env.POSTGRESQL_DB_PORT, 
-    env.POSTGRESQL_DB_NAME, env.POSTGRESQL_DB_USER, 
-    env.POSTGRESQL_DB_PASSWORD)
-database.connect()
+database = None
 
 app = Flask(__name__)
 
@@ -165,5 +161,14 @@ def initialize_database():
 
 
 if __name__ == "__main__":
-    print("Starting Antagonist ... ")
+    logger.info("Starting Antagonist ... ")
+
+    logger.info("Loading the Database ... ")
+    database = postgresql.PostgresqlDatabase(
+        env.POSTGRESQL_DB_HOST, env.POSTGRESQL_DB_PORT, 
+        env.POSTGRESQL_DB_NAME, env.POSTGRESQL_DB_USER, 
+        env.POSTGRESQL_DB_PASSWORD)
+    database.connect()
+
+    logger.info("Ready to Accept connections ... ")
     app.run(host="0.0.0.0", port=5001)

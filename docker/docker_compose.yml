@@ -76,6 +76,7 @@ services:
       - grafana
     networks:
       - influx
+      - postgres
 
 networks:
   influx:
