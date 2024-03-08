@@ -86,10 +86,7 @@ def _postprocess_network_anomalies(net_anomalies:dict):
         new_anomaly["Description"] = anomaly["description"]
         new_anomaly["Version"] = anomaly["version"]
         new_anomaly["State"] = anomaly["state"]
-        new_anomaly["Author Name"] = \
-            anomaly["author"]["name"] + \
-            " (" + anomaly["author"]["author_type"] + ")" + \
-            (anomaly["author"]["version"] if "version" in anomaly["author"] and anomaly["author"]['version'] else "")
+        new_anomaly["Author Name"] = anomaly["author"]["name"]
         res.append(new_anomaly)
     return res
 
