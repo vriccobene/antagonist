@@ -86,16 +86,22 @@ def symptom_to_incident():
         sym_to_inc_data = request.get_json()
         logger.debug("Received new symptom to incident POST request")
         logger.debug(f"Input Data: {sym_to_inc_data}")
-        try: 
-            sym_to_inc_obj = sti.SymptomToIncident(sym_to_inc_data)
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
         
-        # Store the incident in the database
-        try:
-            res = database.store_symptom_incident_relation(sym_to_inc_obj)
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+        if not isinstance(sym_to_inc_data, list):
+            sym_to_inc_data = [sym_to_inc_data]
+
+        res = list()
+        for obj in sym_to_inc_data:
+            try:
+                sym_to_inc_obj = sti.SymptomToIncident(obj)
+            except ValueError as e:
+                res.append({"error": str(e)})
+            
+            # Store the incident in the database
+            try:
+                res.append(database.store_symptom_incident_relation(sym_to_inc_obj))
+            except Exception as e:
+                res.append({"error": str(e)})
         return jsonify(res), 200
 
     if 'GET' == request.method:

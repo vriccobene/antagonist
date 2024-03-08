@@ -592,11 +592,15 @@ def network_anomaly_symptom_visualization_button_show(rows):
 def network_anomaly_detail_visualization_button_clicked(rows, n_clicks):
     if n_clicks is None:
         return []
-<<<<<<< Updated upstream
-    row = rows[0]
-    return network_anomaly_api.get_network_anomalies(
-        subset=False, network_anomaly_description=row.get("Description")
-    )
+
+    desc = rows[0].get('Description')
+    return network_anomaly_api.get_network_anomalies(subset=False, network_anomaly_description=desc)
+    # return symptom_api.get_symptoms(subset=False, incident_id=incident_id)
+
+    # row = rows[0]
+    # return network_anomaly_api.get_network_anomalies(
+    #     subset=False, network_anomaly_description=row.get("Description")
+    # )
 
 
 @service.app.callback(
@@ -607,16 +611,10 @@ def network_anomaly_detail_visualization_button_clicked(rows, n_clicks):
 def network_anomaly_detail_inspect_button_clicked(rows, n_clicks):
     if n_clicks is None or n_clicks == 0:
         return no_update
-
-    row = rows[0]
-    # TODO: Get symptom IDs from the Incident
-    symptom_ids = ["2fc901ba-c941-4dba-a3a6-94ca3618a24d"]
-    return symptom_api.get_symptoms(subset=False, symptom_ids=symptom_ids)
-
-=======
+    
     incident_id = rows[0].get('ID')
     return symptom_api.get_symptoms(subset=False, incident_id=incident_id)
->>>>>>> Stashed changes
+
 
 @service.app.callback(
     Output("network-anomaly-add-new-version-input-auth", "value"),
@@ -639,8 +637,8 @@ def network_anomaly_detail_inspect_button_add_new_vesion(n_clicks, rows):
     history.sort(key=lambda x: x["Version"])
 
     # TODO: Get symptom IDs from the Incident
-    symptom_ids = ["2fc901ba-c941-4dba-a3a6-94ca3618a24d"]
-    symptoms = symptom_api.get_symptoms(subset=False, symptom_ids=symptom_ids)
+    incident_id = rows[0].get('ID')
+    symptoms = symptom_api.get_symptoms(subset=False, incident_id=incident_id)
 
     return (
         history[-1]["Author Name"],
@@ -682,7 +680,7 @@ def network_anomaly_new_vesion_submit(
     out["Author Name"] = n_auth
     out["State"] = n_state
 
-    success = network_anomaly_api.update_network_anomaly(out["ID"], out, n_symptoms)
+    success = network_anomaly_api.create_new_network_anomaly_version(out["ID"], out, n_symptoms)
 
     return (
         network_anomaly_detail_visualization_button_clicked(rows, 1),
@@ -729,9 +727,9 @@ def network_anomaly_new_vesion_search_symptoms(
     if n_clicks is None or start_date is None or end_date is None or start_time is None or end_time is None:
         return no_update
 
-    # TODO: Get symptom IDs from the Incident
-    symptom_ids = ["2fc901ba-c941-4dba-a3a6-94ca3618a24d"]
-    symptoms = symptom_api.get_symptoms(subset=False, symptom_ids=symptom_ids)
+    start = f"{start_date}T{start_time}"
+    end = f"{end_date}T{end_time}"
+    symptoms = symptom_api.get_symptoms(subset=False, start_time=start, end_time=end)
 
     return symptoms
 
@@ -769,7 +767,6 @@ def network_anomaly_compare_versions_available(rows):
         return [], []
 
     row = rows[0]
-<<<<<<< Updated upstream
     annotation_history = network_anomaly_api.get_network_anomalies(
         subset=False, network_anomaly_description=row.get("Description")
     )
@@ -793,19 +790,12 @@ def network_anomaly_compare_versions_data_v1(rows, selection):
     if rows is None or len(rows) == 0 or selection is None:
         return "Author:", "State:", []
 
-    row = rows[0]
-
     annotation_history = network_anomaly_api.get_network_anomalies(
-        subset=False, network_anomaly_description=row.get("Description")
+        subset=False, network_anomaly_description=rows[0].get("Description")
     )
 
-    print("Selection:", selection)
-    print("History:", annotation_history)
     curr_version = [k for k in annotation_history if k["Version"] == int(selection)][0]
-
-    # TODO: Get symptom IDs from the Incident
-    symptom_ids = ["2fc901ba-c941-4dba-a3a6-94ca3618a24d"]
-    symptoms = symptom_api.get_symptoms(subset=False, symptom_ids=symptom_ids)
+    symptoms = symptom_api.get_symptoms(subset=False, incident_id=curr_version.get('ID'))
 
     return (
         f"Author: {curr_version['Author Name']}",
@@ -824,28 +814,15 @@ def network_anomaly_compare_versions_data_v1(rows, selection):
 def network_anomaly_compare_versions_data_v2(rows, selection):
     if rows is None or len(rows) == 0 or selection is None:
         return "Author:", "State:", []
-
-    row = rows[0]
-
+    
     annotation_history = network_anomaly_api.get_network_anomalies(
-        subset=False, network_anomaly_description=row.get("Description")
+        subset=False, network_anomaly_description=rows[0].get("Description")
     )
-
-    print("Selection:", selection)
-    print("History:", annotation_history)
     curr_version = [k for k in annotation_history if k["Version"] == int(selection)][0]
-
-    # TODO: Get symptom IDs from the Incident
-    symptom_ids = ["2fc901ba-c941-4dba-a3a6-94ca3618a24d"]
-    symptoms = symptom_api.get_symptoms(subset=False, symptom_ids=symptom_ids)
+    symptoms = symptom_api.get_symptoms(subset=False, incident_id=curr_version.get('ID'))
 
     return (
         f"Author: {curr_version['Author Name']}",
         f"State: {curr_version['State']}",
         symptoms,
     )
-=======
-    print(row)
-    return network_anomaly_api.get_network_anomalies(
-        subset=False, network_anomaly_description=row.get("Description"))
->>>>>>> Stashed changes

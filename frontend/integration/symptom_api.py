@@ -99,7 +99,6 @@ def get_symptoms(
         subset=True, incident_id:str=None, symptom_id:str=None, 
         start_time=None, end_time=None):
     url = "http://localhost:5001/api/rest/v1/symptom"
-    # columns = column_subset if subset else column_fullset
 
     params = {
         "incident-id": incident_id,
@@ -123,7 +122,6 @@ def get_symptoms_col_def(subset=True):
     columns = column_subset if subset else column_fullset
     column_defs = [{"field": columns[0], "checkboxSelection": True, "sortable": True, "filter": True}]
     column_defs.extend([{"field": field, "sortable": True, "filter": True} for field in columns[1:]])
-    print(column_defs)
     return column_defs
 
 

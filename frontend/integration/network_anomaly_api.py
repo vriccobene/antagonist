@@ -31,17 +31,51 @@ column_subset = ["Description"]
 column_fullset = ["ID", "Description", "Author Name", "Version", "State"]
 
 
+def create_new_network_anomaly_version(network_anomaly_id: uuid.UUID, network_anomaly_record:dict, network_anomaly_symptoms:list):
+    # Create the new network anomaly version
+    
+    body = {
+        "description": network_anomaly_record.get("Description"), 
+        "version": network_anomaly_record.get("Version"), 
+        "state": network_anomaly_record.get("State"), 
+        "author": {
+            "name": network_anomaly_record.get("Author Name"), 
+            "author_type": "person"}
+    }
+    new_network_anomaly_id = requests.post("http://localhost:5001/api/rest/v1/incident", 
+                                json=body)
+
+    # Relate the new network anomaly to the indicated symptoms
+    body = [{"incident-id": new_network_anomaly_id.json(), 
+             "symptom-id": sym.get("id")} 
+            for sym in network_anomaly_symptoms]
+    response = requests.post("http://localhost:5001/api/rest/v1/incident/symptom", 
+                             json=body)
+    if response.status_code == 200:
+        network_anomalies = response.json()
+        return network_anomalies
+    else:
+        raise Exception("Failed to store relationship between network " \
+                        "anomaly and symptoms in the API")
+
+
 def _retrieve_network_anomalies():
     response = requests.get("http://localhost:5001/api/rest/v1/incident")
-    # TODO: Replace with call to the API
-    """ response = requests.get("http://localhost:5001/api/rest/v1/incident")
     if response.status_code == 200:
         network_anomalies = response.json()
         return _postprocess_network_anomalies(network_anomalies)
     else:
         raise Exception("Failed to retrieve network anomalies from the API")
-        raise Exception("Failed to retrieve network anomalies from the API") """
-    return network_anomaly_data
+    
+
+def get_network_anomalies(subset=True, network_anomaly_description=None):
+    network_anomalies = _retrieve_network_anomalies()
+    columns = column_subset if subset else column_fullset
+    df = pd.DataFrame.from_dict(network_anomalies)
+    filter_df = df.drop_duplicates(subset=columns)
+    filter_df = df[df.Description == network_anomaly_description
+                   ] if network_anomaly_description else filter_df
+    return filter_df[columns].to_dict('records')
 
 
 def _postprocess_network_anomalies(net_anomalies:dict):
@@ -60,17 +94,6 @@ def _postprocess_network_anomalies(net_anomalies:dict):
     return res
 
 
-def get_network_anomalies(subset=True, network_anomaly_description=None):
-    network_anomalies = _retrieve_network_anomalies()
-    columns = column_subset if subset else column_fullset
-    df = pd.DataFrame.from_dict(network_anomalies)
-    print(df.head())
-    filter_df = df.drop_duplicates(subset=columns)
-    filter_df = df[df.Description == network_anomaly_description] \
-                    if network_anomaly_description else filter_df
-    return filter_df[columns].to_dict('records')
-
-
 def get_network_anomaly_col_def(subset=True):
     columns = column_subset if subset else column_fullset
     column_defs = [{"field": columns[0], "checkboxSelection": True, "sortable": True, "filter": True}]
@@ -78,18 +101,6 @@ def get_network_anomaly_col_def(subset=True):
     return column_defs
 
 
-def get_network_anomaly(network_anomaly_id: uuid.UUID):
-    # TODO Replace with call to the API
-    return next(net_anomaly for net_anomaly in network_anomaly_data if net_anomaly.get('ID') == network_anomaly_data)
-
-
-def update_network_anomaly(network_anomaly_id: uuid.UUID, network_anomaly_record:dict, network_anomaly_symptoms:list):
-    # TODO Replace with call to the API
-    network_anomaly_data.append(network_anomaly_record)
-    return True
-
-def update_network_anomaly(network_anomaly_id: uuid.UUID, network_anomaly_record:dict, network_anomaly_symptoms:list):
-    # TODO Replace with call to the API
-    network_anomaly_data.append(network_anomaly_record)
-
-    return True
+# def get_network_anomaly(network_anomaly_id: uuid.UUID):
+#     # TODO Replace with call to the API
+#     return next(net_anomaly for net_anomaly in network_anomaly_data if net_anomaly.get('ID') == network_anomaly_data)
