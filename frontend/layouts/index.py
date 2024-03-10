@@ -4,6 +4,10 @@ import dash_ag_grid as dag
 from integration import symptom_api, network_anomaly_api
 import app as service
 from datetime import date
+<<<<<<< HEAD
+=======
+import pandas as pd
+>>>>>>> 68849c6b8a37334096c061a1b01824890b8966e8
 
 layout = html.Div(
     [
