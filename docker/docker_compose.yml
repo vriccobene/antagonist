@@ -65,15 +65,26 @@ services:
       - influx
       - postgres
   
-  antagonist:
+  antagonist-core:
     image: antagonist:latest
-    container_name: antagonist
+    container_name: antagonist-core
     restart: always
     ports:
       - "5001:5001"
     depends_on:
+      - postgres
+    networks:
       - influx
-      - grafana
+      - postgres
+
+  antagonist-frontend:
+    image: antagonist-frontend:latest
+    container_name: antagonist-frontend
+    restart: always
+    depends_on:
+      - antagonist-core
+    ports:
+      - "8050:8050"
     networks:
       - influx
       - postgres

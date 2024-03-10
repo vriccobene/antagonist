@@ -2,6 +2,12 @@ import uuid
 import requests
 import pandas as pd
 
+import logging
+logger = logging.getLogger(__name__)
+
+
+
+ANTAGONIST_CORE_HOST = "http://antagonist-core:5001"
 
 # network_anomaly_data = [
 #     {"ID": "6ff58573-c1a1-4dc7-ab55-7b7f346d1070", "Description": "January 2023 - 01", "Author Name": "Vince", "Version": 1, "State": "Forecasted"},
@@ -33,7 +39,7 @@ column_fullset = ["ID", "Description", "Author Name", "Version", "State"]
 
 def create_new_network_anomaly_version(network_anomaly_id: uuid.UUID, network_anomaly_record:dict, network_anomaly_symptoms:list):
     # Create the new network anomaly version
-    
+    logger.error(f"Invoking API on: {ANTAGONIST_CORE_HOST}")
     body = {
         "description": network_anomaly_record.get("Description"), 
         "version": network_anomaly_record.get("Version"), 
@@ -42,14 +48,14 @@ def create_new_network_anomaly_version(network_anomaly_id: uuid.UUID, network_an
             "name": network_anomaly_record.get("Author Name"), 
             "author_type": "person"}
     }
-    new_network_anomaly_id = requests.post("http://localhost:5001/api/rest/v1/incident", 
+    new_network_anomaly_id = requests.post(f"{ANTAGONIST_CORE_HOST}/api/rest/v1/incident", 
                                 json=body)
 
     # Relate the new network anomaly to the indicated symptoms
     body = [{"incident-id": new_network_anomaly_id.json(), 
              "symptom-id": sym.get("id")} 
             for sym in network_anomaly_symptoms]
-    response = requests.post("http://localhost:5001/api/rest/v1/incident/symptom", 
+    response = requests.post(f"{ANTAGONIST_CORE_HOST}/api/rest/v1/incident/symptom", 
                              json=body)
     if response.status_code == 200:
         network_anomalies = response.json()
@@ -60,12 +66,14 @@ def create_new_network_anomaly_version(network_anomaly_id: uuid.UUID, network_an
 
 
 def _retrieve_network_anomalies():
-    response = requests.get("http://localhost:5001/api/rest/v1/incident")
+    logger.error(f"Retrieving network anomalies from {ANTAGONIST_CORE_HOST}")
+    response = requests.get(f"{ANTAGONIST_CORE_HOST}/api/rest/v1/incident")
     if response.status_code == 200:
         network_anomalies = response.json()
         return _postprocess_network_anomalies(network_anomalies)
     else:
-        raise Exception("Failed to retrieve network anomalies from the API")
+        logger.error(f"Response: {response}")
+        raise Exception("AAA Failed to retrieve network anomalies from the API")
     
 
 def get_network_anomalies(subset=True, network_anomaly_description=None):

@@ -2,6 +2,8 @@ import uuid
 import pandas as pd
 import requests
 
+ANTAGONIST_CORE_HOST = "http://antagonist-core:5001"
+
 
 symptom_data = [
     {
@@ -98,7 +100,7 @@ column_fullset = [
 def get_symptoms(
         subset=True, incident_id:str=None, symptom_id:str=None, 
         start_time=None, end_time=None):
-    url = "http://localhost:5001/api/rest/v1/symptom"
+    url = f"{ANTAGONIST_CORE_HOST}/api/rest/v1/symptom"
 
     params = {
         "incident-id": incident_id,

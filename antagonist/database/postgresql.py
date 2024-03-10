@@ -140,7 +140,6 @@ class PostgresqlDatabase(database_base.DatabaseBase):
         """
         try:
             cursor = self.connection.cursor()
-            # TODO: Add Transaction
             self._store_symptom(cursor, symptom)
             symptom_id = cursor.fetchone()[0]
             tags = symptom.tags
@@ -223,7 +222,7 @@ class PostgresqlDatabase(database_base.DatabaseBase):
 
         # TODO - move data model related stuff in the entity definition
         def _convert_to_obj(symptom_val):
-            # TODO: Add tags
+            # TODO: Add checks to the tags
             tags = self._get_tags(symptom_val[0])
             res = symptom.Symptom({
                 "event-id": str(symptom_val[1]),
@@ -249,7 +248,6 @@ class PostgresqlDatabase(database_base.DatabaseBase):
 
             if start_time and end_time:
                 # Retrieve all symptoms within a time range
-                # TODO: Finish this method!
                 query = "SELECT " \
                         "id, event_id, start_time, end_time, descript, confidence_score, " \
                         "concern_score, plane, reason, action, cause, pattern, " \
@@ -303,7 +301,6 @@ class PostgresqlDatabase(database_base.DatabaseBase):
                 symptom_list = cursor.fetchall()
                 
                 logger.info("Symptoms retrieved successfully!")
-                # TODO Adjust fields, as there might be too many!
                 return [_convert_to_obj(symptom_val) for symptom_val in symptom_list] or []
 
         except (Exception, psycopg2.Error) as error:
