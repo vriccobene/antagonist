@@ -41,3 +41,10 @@ If you want to use that script to load up the data, data file is avaialable here
 
 ## Load up the dashboard on Grafana
 A pre-defined Grafana dashboard has to be load up on the system, which is located in docker/grafana/provisioning/dashboads/
+
+## Disclaimer
+The User of this project is solely responsible for the misuse or unlawful use of this software and Content. 
+Authors disclaim any responsibility for harm, loss, or damage resulting from such misuse. 
+This includes but is not limited to unlawful activities, data loss, or adverse effects of any kind. 
+Hacking and cybersecurity laws vary by jurisdiction. 
+By engaging with this project, you agree to take full responsibility for your actions.
