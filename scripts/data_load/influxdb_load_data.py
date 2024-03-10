@@ -30,13 +30,15 @@ def main():
     influx_api = client.write_api(write_opton=SYNCHRONOUS)
 
     # Prepare and store data points
+    # timebase = 171008  # Fixed timestamp on 10th March 2024
+    timebase = str(time.time())[0:6] # Current timestamp
     step = 1000
     start, end = 0, step
     while True:
         points = []
         for index, row in df[start: end].iterrows():
             # Adjust timestamp to fall within the retention period
-            timestamp = f"{str(time.time())[0:6]}{str(index)[6:]}"
+            timestamp = f"{timebase}{str(index)[6:]}"
 
             for col in row.index:
                 # Do not store categorical metrics

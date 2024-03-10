@@ -73,11 +73,13 @@ def _retrieve_network_anomalies():
         return _postprocess_network_anomalies(network_anomalies)
     else:
         logger.error(f"Response: {response}")
-        raise Exception("AAA Failed to retrieve network anomalies from the API")
+        raise Exception("Failed to retrieve network anomalies from the API")
     
 
 def get_network_anomalies(subset=True, network_anomaly_description=None):
     network_anomalies = _retrieve_network_anomalies()
+    if len(network_anomalies) == 0:
+        return []
     columns = column_subset if subset else column_fullset
     df = pd.DataFrame.from_dict(network_anomalies)
     filter_df = df.drop_duplicates(subset=columns)

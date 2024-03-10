@@ -67,7 +67,7 @@ def incident():
 
     if 'GET' == request.method:
         incident_id = request.args.get('id', None)
-        db_res = database.get_incident(incident_id)
+        db_res = database.get_incident(incident_id) or []
         if not incident_id:
             res = [dict(entry) for entry in db_res]
             return jsonify(res), 200
@@ -81,7 +81,7 @@ def symptom_to_incident():
     """
     def _convert_to_dict(val):
         {"symptom-id": val.symptom_id, "incident-id": val.get('incident-id')}
-
+    
     if 'POST' == request.method:
         sym_to_inc_data = request.get_json()
         logger.debug("Received new symptom to incident POST request")

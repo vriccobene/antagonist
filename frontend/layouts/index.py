@@ -627,7 +627,7 @@ def network_anomaly_detail_inspect_button_clicked(rows, n_clicks):
     Output("new-version-symptom-table-current", "rowData", allow_duplicate=True),
     Output("network-anomaly-tabs", "active_tab", allow_duplicate=True),
     Input("network-anomaly-add-new-version-button", "n_clicks"),
-    State("network-anomaly-table", "selectedRows"),
+    State("network-anomaly-history-table", "selectedRows"),
     prevent_initial_call="initial_duplicate",
 )
 def network_anomaly_detail_inspect_button_add_new_vesion(n_clicks, rows):
@@ -721,7 +721,6 @@ def network_anomaly_new_vesion_delete_symptom(n_clicks, rowData, selectedRows):
     if n_clicks is None or len(selectedRows) == 0:
         return no_update
 
-    # TODO call also the related API
     for r in selectedRows:
         del rowData[rowData.index(r)]
 
@@ -769,7 +768,7 @@ def network_anomaly_new_vesion_add_symptoms(
     # Initial callback
     if n_clicks is None or len(selected_rows)==0:
         return no_update
-    
+      
     output = initial_rows + selected_rows
 
     # remove duplicates before visualizing
