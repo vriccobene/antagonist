@@ -24,16 +24,13 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"event-id\": \"09c9b71e-97e0-40a2-8bda-55ee3cf0c81d\",\r\n    \"start-time\": \"2024-02-12T14:12:06\", \r\n    \"end-time\": \"2024-02-12T14:13:01\", \r\n    \"description\": \"str\", \r\n    \"confidence-score\": 0.3, \r\n    \"concern-score\": 0.2, \r\n    \"plane\": \"control\", \r\n    \"condition\": \"str\",\r\n    \"action\": \"str\", \r\n    \"cause\": \"str\", \r\n    \"pattern\": \"str\", \r\n    \"source-type\": \"str\", \r\n    \"source-name\": \"str\",\r\n    \"tags\": {\"Aieie\": \"Brazorf\", \"Franco\": \"Ciccio\"}\r\n}"
+					"raw": "{\r\n    \"event-id\": \"09c9b71e-97e0-40a2-8bda-55ee3cf0c81d\",\r\n    \"start-time\": \"2024-02-12T14:12:06\", \r\n    \"end-time\": \"2024-02-12T14:13:01\", \r\n    \"description\": \"str\", \r\n    \"confidence-score\": 0.3, \r\n    \"concern-score\": 0.2, \r\n    \"plane\": \"control\", \r\n    \"action\": \"str\", \r\n    \"cause\": \"str\", \r\n    \"reason\": \"str\", \r\n    \"pattern\": \"str\", \r\n    \"source-type\": \"str\", \r\n    \"source-name\": \"str\",\r\n    \"tags\": {\"Aieie\": \"Brazorf\", \"Franco\": \"e Ciccio\"}\r\n}"
 				},
 				"url": {
-					"raw": "http://192.168.1.7:5001/api/rest/v1/symptom",
+					"raw": "http://localhost:5001/api/rest/v1/symptom",
 					"protocol": "http",
 					"host": [
-						"192",
-						"168",
-						"1",
-						"7"
+						"localhost"
 					],
 					"port": "5001",
 					"path": [
@@ -67,13 +64,10 @@
 					"raw": "{\"description\": \"November 2023 - 01\", \"version\": 1, \"state\": \"Confirmed\", \"author\": {\"name\": \"Vince\", \"author_type\": \"person\"}}"
 				},
 				"url": {
-					"raw": "http://192.168.1.7:5001/api/rest/v1/incident",
+					"raw": "http://localhost:5001/api/rest/v1/incident",
 					"protocol": "http",
 					"host": [
-						"192",
-						"168",
-						"1",
-						"7"
+						"localhost"
 					],
 					"port": "5001",
 					"path": [
@@ -81,6 +75,44 @@
 						"rest",
 						"v1",
 						"incident"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add New Network Anomaly Version",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"incident-id\": \"f6c30b20-303d-4956-b845-bf8243c5790b\",\r\n    \"symptom-id\": \"05674eba-9de7-4e22-af6f-ef4d37747ce9\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/rest/v1/incident/symptom",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"rest",
+						"v1",
+						"incident",
+						"symptom"
 					]
 				}
 			},
@@ -217,13 +249,10 @@
 					"raw": "{\r\n    \"Content-Type\": \"application/json\", \r\n    \"Accept\": \"application/json\", \r\n    \"Authorization\": \"Bearer eyJrIjoiZnVMc2pWeFkwNG81MmlxVUVJUWY2T20yblh6ZzkxUTEiLCJuIjoiYW50YWdvbmlzdCIsImlkIjoxfQ==\"\r\n}"
 				},
 				"url": {
-					"raw": "http://192.168.1.7:5001/api/rest/v1/symptom",
+					"raw": "http://localhost:5001/api/rest/v1/symptom",
 					"protocol": "http",
 					"host": [
-						"192",
-						"168",
-						"1",
-						"7"
+						"localhost"
 					],
 					"port": "5001",
 					"path": [
@@ -231,6 +260,108 @@
 						"rest",
 						"v1",
 						"symptom"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Symptoms By Network Anomaly ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer glsa_jpNMmdn5d1lvuVbdc8f4cQ2Q0WTsAJbh_55df2413",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Content-Type\": \"application/json\", \r\n    \"Accept\": \"application/json\", \r\n    \"Authorization\": \"Bearer eyJrIjoiZnVMc2pWeFkwNG81MmlxVUVJUWY2T20yblh6ZzkxUTEiLCJuIjoiYW50YWdvbmlzdCIsImlkIjoxfQ==\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/rest/v1/symptom?incident-id=f6c30b20-303d-4956-b845-bf8243c5790b",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"rest",
+						"v1",
+						"symptom"
+					],
+					"query": [
+						{
+							"key": "incident-id",
+							"value": "f6c30b20-303d-4956-b845-bf8243c5790b"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Symptoms by time window",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer glsa_jpNMmdn5d1lvuVbdc8f4cQ2Q0WTsAJbh_55df2413",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Content-Type\": \"application/json\", \r\n    \"Accept\": \"application/json\", \r\n    \"Authorization\": \"Bearer eyJrIjoiZnVMc2pWeFkwNG81MmlxVUVJUWY2T20yblh6ZzkxUTEiLCJuIjoiYW50YWdvbmlzdCIsImlkIjoxfQ==\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/rest/v1/symptom?start-time=2023-02-12T14:12:07&end-time=2025-02-12T14:12:08",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"rest",
+						"v1",
+						"symptom"
+					],
+					"query": [
+						{
+							"key": "start-time",
+							"value": "2023-02-12T14:12:07"
+						},
+						{
+							"key": "end-time",
+							"value": "2025-02-12T14:12:08"
+						}
 					]
 				}
 			},
