@@ -614,10 +614,6 @@ def network_anomaly_detail_inspect_button_clicked(rows, n_clicks):
     incident_id = rows[0].get('ID')
     symptoms = symptom_api.get_symptoms(subset=False, incident_id=incident_id)
 
-    # TODO correct labels
-    for s in symptoms:
-        s["ID"] = s['id']
-
     return symptoms
 
 
@@ -627,7 +623,7 @@ def network_anomaly_detail_inspect_button_clicked(rows, n_clicks):
     Output("new-version-symptom-table-current", "rowData", allow_duplicate=True),
     Output("network-anomaly-tabs", "active_tab", allow_duplicate=True),
     Input("network-anomaly-add-new-version-button", "n_clicks"),
-    State("network-anomaly-history-table", "selectedRows"),
+    State("network-anomaly-table", "selectedRows"),
     prevent_initial_call="initial_duplicate",
 )
 def network_anomaly_detail_inspect_button_add_new_vesion(n_clicks, rows):
@@ -644,9 +640,6 @@ def network_anomaly_detail_inspect_button_add_new_vesion(n_clicks, rows):
     incident_id = history[-1].get('ID')
     symptoms = symptom_api.get_symptoms(subset=False, incident_id=incident_id)
 
-    # TODO correct labels
-    for s in symptoms:
-        s["ID"] = s['id']
 
     return (
         history[-1]["Author Name"],
@@ -818,9 +811,6 @@ def network_anomaly_compare_versions_data_v1(rows, selection):
     curr_version = [k for k in annotation_history if k["Version"] == int(selection)][0]
     symptoms = symptom_api.get_symptoms(subset=False, incident_id=curr_version.get('ID'))
 
-    # TODO correct labels
-    for s in symptoms:
-        s["ID"] = s['id']
 
     return (
         f"Author: {curr_version['Author Name']}",
@@ -846,9 +836,6 @@ def network_anomaly_compare_versions_data_v2(rows, selection):
     curr_version = [k for k in annotation_history if k["Version"] == int(selection)][0]
     symptoms = symptom_api.get_symptoms(subset=False, incident_id=curr_version.get('ID'))
 
-    # TODO correct labels
-    for s in symptoms:
-        s["ID"] = s['id']
 
     return (
         f"Author: {curr_version['Author Name']}",

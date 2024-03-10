@@ -88,11 +88,11 @@ symptom_data = [
     },
 ]
 column_subset = [
-    "ID", "description", "start-time", "end-time", 
+    "id", "description", "start-time", "end-time", 
     "confidence-score", "concern-score"
 ]
 column_fullset = [
-    "ID", "event-id", "description", "start-time", "end-time", 
+    "id", "event-id", "description", "start-time", "end-time", 
     "confidence-score", "concern-score", "plane", "condition", 
     "action", "cause", "pattern", "source-type", "source-name"]
 
