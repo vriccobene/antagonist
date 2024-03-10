@@ -3,11 +3,10 @@ import dash_bootstrap_components as dbc
 import dash_ag_grid as dag
 from integration import symptom_api, network_anomaly_api
 import app as service
+import logging
 from datetime import date
-<<<<<<< HEAD
-=======
-import pandas as pd
->>>>>>> 68849c6b8a37334096c061a1b01824890b8966e8
+
+logger = logging.getLogger(__name__)
 
 layout = html.Div(
     [
@@ -552,19 +551,20 @@ layout = html.Div(
     Output("network-anomaly-compare-button", "style"),
     Output("network-anomaly-add-new-version-button", "style"),
     Input("network-anomaly-table", "selectedRows"),
+    prevent_initial_call="initial_duplicate",
 )
 def network_anomaly_detail_visualization_button_show(rows):
     if rows is None or len(rows) == 0:
         return (
             {"visibility": "hidden"},
             {"visibility": "hidden"},
-            {"visibility": "hidden"},
+            {"visibility": "hidden"}
         )
 
     return (
         {"visibility": "initial"},
         {"visibility": "initial"},
-        {"visibility": "initial"},
+        {"visibility": "initial"}
     )
 
 
@@ -612,7 +612,13 @@ def network_anomaly_detail_inspect_button_clicked(rows, n_clicks):
         return no_update
     
     incident_id = rows[0].get('ID')
-    return symptom_api.get_symptoms(subset=False, incident_id=incident_id)
+    symptoms = symptom_api.get_symptoms(subset=False, incident_id=incident_id)
+
+    # TODO correct labels
+    for s in symptoms:
+        s["ID"] = s['id']
+
+    return symptoms
 
 
 @service.app.callback(
@@ -635,9 +641,12 @@ def network_anomaly_detail_inspect_button_add_new_vesion(n_clicks, rows):
     )
     history.sort(key=lambda x: x["Version"])
 
-    # TODO: Get symptom IDs from the Incident
-    incident_id = rows[0].get('ID')
+    incident_id = history[-1].get('ID')
     symptoms = symptom_api.get_symptoms(subset=False, incident_id=incident_id)
+
+    # TODO correct labels
+    for s in symptoms:
+        s["ID"] = s['id']
 
     return (
         history[-1]["Author Name"],
@@ -645,6 +654,19 @@ def network_anomaly_detail_inspect_button_add_new_vesion(n_clicks, rows):
         symptoms,
         "network-anomaly-tabs-new-version",
     )
+
+@service.app.callback(
+    Output("network-anomaly-tabs", "active_tab", allow_duplicate=True),
+    Input("network-anomaly-compare-button", "n_clicks"),
+    prevent_initial_call="initial_duplicate",
+)
+def network_anomaly_detail_inspect_button_add_new_vesion(n_clicks):
+
+    if n_clicks is None or n_clicks == 0:
+        return no_update
+
+    return "network-anomaly-tabs-compare-versions",
+    
 
 
 # Add version section callbacks
@@ -797,6 +819,10 @@ def network_anomaly_compare_versions_data_v1(rows, selection):
     curr_version = [k for k in annotation_history if k["Version"] == int(selection)][0]
     symptoms = symptom_api.get_symptoms(subset=False, incident_id=curr_version.get('ID'))
 
+    # TODO correct labels
+    for s in symptoms:
+        s["ID"] = s['id']
+
     return (
         f"Author: {curr_version['Author Name']}",
         f"State: {curr_version['State']}",
@@ -820,6 +846,10 @@ def network_anomaly_compare_versions_data_v2(rows, selection):
     )
     curr_version = [k for k in annotation_history if k["Version"] == int(selection)][0]
     symptoms = symptom_api.get_symptoms(subset=False, incident_id=curr_version.get('ID'))
+
+    # TODO correct labels
+    for s in symptoms:
+        s["ID"] = s['id']
 
     return (
         f"Author: {curr_version['Author Name']}",
