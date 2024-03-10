@@ -4,7 +4,7 @@ import dash_ag_grid as dag
 from integration import symptom_api, network_anomaly_api
 import app as service
 from datetime import date
-
+import pandas as pd
 
 layout = html.Div(
     [
@@ -541,10 +541,6 @@ layout = html.Div(
     ]
 )
 
-# TODO: Add capability of adding a new version
-# TODO: Add capability of comparing 2 versions
-
-
 # Buttons visualization callbacks
 
 
@@ -748,10 +744,11 @@ def network_anomaly_new_vesion_add_symptoms(
     # Initial callback
     if n_clicks is None or len(selected_rows)==0:
         return no_update
-    
-    # TODO call also the related API
 
-    return initial_rows + selected_rows
+    # remove duplicates before visualizing
+    return pd.DataFrame(
+        initial_rows + selected_rows
+    ).drop_duplicates().to_dict('records')
 
 
 # Compare versions section callbacks
