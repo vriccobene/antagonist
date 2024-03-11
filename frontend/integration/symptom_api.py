@@ -88,13 +88,13 @@ symptom_data = [
     },
 ]
 column_subset = [
-    "ID", "description", "start-time", "end-time", 
-    "confidence-score", "concern-score"
+    "id", "description", "start-time", "end-time", 
+    "confidence-score", "concern-score", "URL"
 ]
 column_fullset = [
-    "ID", "event-id", "description", "start-time", "end-time", 
+    "id", "event-id", "description", "start-time", "end-time", 
     "confidence-score", "concern-score", "plane", "condition", 
-    "action", "cause", "pattern", "source-type", "source-name"]
+    "action", "cause", "pattern", "source-type", "source-name", "URL"]
 
 
 def get_symptoms(
@@ -124,6 +124,11 @@ def get_symptoms_col_def(subset=True):
     columns = column_subset if subset else column_fullset
     column_defs = [{"field": columns[0], "checkboxSelection": True, "sortable": True, "filter": True}]
     column_defs.extend([{"field": field, "sortable": True, "filter": True} for field in columns[1:]])
+    
+    for col in column_defs:
+        if col['field'] == 'URL':
+            col['cellRenderer'] = "markdown"
+    
     return column_defs
 
 
