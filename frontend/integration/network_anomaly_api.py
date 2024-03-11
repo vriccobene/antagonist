@@ -66,7 +66,6 @@ def create_new_network_anomaly_version(network_anomaly_id: uuid.UUID, network_an
 
 
 def _retrieve_network_anomalies():
-    logger.error(f"Retrieving network anomalies from {ANTAGONIST_CORE_HOST}")
     response = requests.get(f"{ANTAGONIST_CORE_HOST}/api/rest/v1/incident")
     if response.status_code == 200:
         network_anomalies = response.json()
