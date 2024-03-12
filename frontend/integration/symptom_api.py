@@ -89,12 +89,12 @@ symptom_data = [
 ]
 column_subset = [
     "id", "description", "start-time", "end-time", 
-    "confidence-score", "concern-score", "URL"
+    "confidence-score", "concern-score", "url"
 ]
 column_fullset = [
     "id", "event-id", "description", "start-time", "end-time", 
     "confidence-score", "concern-score", "plane", "condition", 
-    "action", "cause", "pattern", "source-type", "source-name", "URL"]
+    "action", "cause", "pattern", "source-type", "source-name", "url"]
 
 
 def get_symptoms(
@@ -117,7 +117,20 @@ def get_symptoms(
     # filter_df = df[df.ID.isin(symptom_ids)] if symptom_ids else filter_df
     # print(filter_df)
     # return filter_df[columns].to_dict('records')
-    return symptom_data
+    
+    return [_prepare_symptom_for_visualization(symptom) 
+            for symptom in symptom_data]
+    # return symptom_data
+
+
+def _prepare_symptom_for_visualization(symptom: dict):
+    res = dict()
+    for k, v in symptom.items():
+        if k == "tags":
+            res["url"] = v.get("url")
+        else:
+            res[k] = v
+    return res
 
 
 def get_symptoms_col_def(subset=True):
@@ -126,8 +139,9 @@ def get_symptoms_col_def(subset=True):
     column_defs.extend([{"field": field, "sortable": True, "filter": True} for field in columns[1:]])
     
     for col in column_defs:
-        if col['field'] == 'URL':
+        if col['field'] == 'url':
             col['cellRenderer'] = "markdown"
+            col["cellStyle"] = {'background-color': '#707070'}
     
     return column_defs
 
