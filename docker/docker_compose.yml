@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-influx:
+  influx:
     image: influxdb:latest
     container_name: ${INFLUX_CONTAINER}
     restart: always
@@ -70,7 +70,7 @@ influx:
     networks:
       - influx
       - postgres
-  
+
   antagonist-core:
     image: antagonist:latest
     container_name: antagonist-core

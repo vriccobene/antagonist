@@ -31,7 +31,10 @@ def main():
 
     # Prepare and store data points
     # timebase = 171008  # Fixed timestamp on 10th March 2024
-    timebase = str(time.time())[0:6] # Current timestamp
+
+    # timebase = str(time.time())[0:6] # Current timestamp
+    timebase = 171027
+    
     step = 1000
     start, end = 0, step
     while True:

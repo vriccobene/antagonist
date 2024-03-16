@@ -38,9 +38,10 @@ def symptom():
         end_time = request.args.get('end-time', None)
         db_res = database.get_symptom(
             symptom_id=symptom_id, incident_id=incident_id, 
-            start_time=start_time, end_time=end_time)
+            start_time=start_time, end_time=end_time) 
         
         if not symptom_id:
+            db_res = db_res or []
             res = [dict(entry) for entry in db_res]
             return jsonify(res), 200
             
