@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "dependencies": {
-    "grafanaDependency": ">=9.0.0",
+    "grafanaDependency": ">=9.2.0",
     "plugins": []
   },
   "id": "volkovlabs-form-panel",
@@ -40,8 +40,8 @@
         "path": "img/request.png"
       }
     ],
-    "updated": "2024-01-10",
-    "version": "3.6.0"
+    "updated": "2024-03-13",
+    "version": "3.7.0"
   },
   "name": "Data Manipulation",
   "type": "panel"

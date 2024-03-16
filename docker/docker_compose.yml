@@ -30,6 +30,12 @@ services:
       POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
     volumes:
       - ./postgres/data/:/var/lib/postgresql/data
       - ./postgres/initd/:/docker-entrypoint-initdb.d/
@@ -64,18 +70,31 @@ services:
     networks:
       - influx
       - postgres
-  
-  antagonist:
+
+  antagonist-core:
     image: antagonist:latest
-    container_name: antagonist
+    container_name: antagonist-core
     restart: always
     ports:
       - "5001:5001"
     depends_on:
-      - influx
-      - grafana
+      postgres:
+        condition: service_healthy
     networks:
       - influx
+      - postgres
+
+  antagonist-frontend:
+    image: antagonist-frontend:latest
+    container_name: antagonist-frontend
+    restart: always
+    depends_on:
+      - antagonist-core
+    ports:
+      - "8050:8050"
+    networks:
+      - influx
+      - postgres
 
 networks:
   influx:

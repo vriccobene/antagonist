@@ -34,9 +34,17 @@ class GrafanaAnnotationApi:
         """
         limit = limit or self._default_limit
         url = self._url_builder_get(start_time, end_time, limit)
+        print(url)
         response = requests.get(url, headers=self._headers)
         return response.json() if response.status_code == 200 else list()
     
+    def post(self, annotations):
+        """
+        Store annotations to Grafana
+        """
+        response = requests.post(self._base_api_path, headers=self._headers, json=annotations)
+        return response.json() if response.status_code == 200 else list()
+
     def refine(self, annotation_id:str, start_time:str, end_time:str, new_annotation_descr:dict):
         # Step 1 - Retrieve any existing annotation
         existing_annotation = self._get_annotation(annotation_id, start_time, end_time)

@@ -1,5 +1,8 @@
 import uuid
 import pandas as pd
+import requests
+
+ANTAGONIST_CORE_HOST = "http://antagonist-core:5001"
 
 
 symptom_data = [
@@ -84,32 +87,62 @@ symptom_data = [
         }
     },
 ]
-
-
 column_subset = [
-    "ID", "description", "start-time", "end-time", 
-    "confidence-score", "concern-score"
+    "id", "description", "start-time", "end-time", 
+    "confidence-score", "concern-score", "url"
 ]
 column_fullset = [
-    "ID", "event-id", "description", "start-time", "end-time", 
+    "id", "event-id", "description", "start-time", "end-time", 
     "confidence-score", "concern-score", "plane", "condition", 
-    "action", "cause", "pattern", "source-type", "source-name"]
+    "action", "cause", "pattern", "source-type", "source-name", "url"]
 
-def get_symptoms(subset=True, symptom_ids=None, start_time=None, end_time=None):
-    # TODO: Replace with call to the Core Antagonist API
-    columns = column_subset if subset else column_fullset
-    df = pd.DataFrame.from_dict(symptom_data)
-    filter_df = df.drop_duplicates(subset=columns)
-    filter_df = df[df.ID.isin(symptom_ids)] if symptom_ids else filter_df
-    print(filter_df)
-    return filter_df[columns].to_dict('records')
+
+def get_symptoms(
+        subset=True, incident_id:str=None, symptom_id:str=None, 
+        start_time=None, end_time=None):
+    url = f"{ANTAGONIST_CORE_HOST}/api/rest/v1/symptom"
+
+    params = {
+        "incident-id": incident_id,
+        "symptom-id": symptom_id,
+        "start-time": start_time,
+        "end-time": end_time
+    }
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    symptom_data = response.json()
+    
+    # df = pd.DataFrame.from_dict(symptom_data)
+    # filter_df = df.drop_duplicates(subset=columns)
+    # filter_df = df[df.ID.isin(symptom_ids)] if symptom_ids else filter_df
+    # print(filter_df)
+    # return filter_df[columns].to_dict('records')
+    
+    return [_prepare_symptom_for_visualization(symptom) 
+            for symptom in symptom_data]
+    # return symptom_data
+
+
+def _prepare_symptom_for_visualization(symptom: dict):
+    res = dict()
+    for k, v in symptom.items():
+        if k == "tags":
+            res["url"] = v.get("url")
+        else:
+            res[k] = v
+    return res
 
 
 def get_symptoms_col_def(subset=True):
     columns = column_subset if subset else column_fullset
     column_defs = [{"field": columns[0], "checkboxSelection": True, "sortable": True, "filter": True}]
     column_defs.extend([{"field": field, "sortable": True, "filter": True} for field in columns[1:]])
-    print(column_defs)
+    
+    for col in column_defs:
+        if col['field'] == 'url':
+            col['cellRenderer'] = "markdown"
+            col["cellStyle"] = {'background-color': '#707070'}
+    
     return column_defs
 
 

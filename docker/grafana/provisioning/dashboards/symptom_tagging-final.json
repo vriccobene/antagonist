@@ -1,8 +1,8 @@
 {
   "__inputs": [
     {
-      "name": "DS_INFLUXDB",
-      "label": "InfluxDB",
+      "name": "DS_MAIN-INFLUXDB",
+      "label": "main-influxdb",
       "description": "",
       "type": "datasource",
       "pluginId": "influxdb",
@@ -39,7 +39,7 @@
       "type": "panel",
       "id": "volkovlabs-form-panel",
       "name": "Data Manipulation",
-      "version": "3.2.1"
+      "version": "3.6.0"
     }
   ],
   "annotations": {
@@ -108,7 +108,7 @@
   "liveNow": false,
   "panels": [
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -116,104 +116,104 @@
         "y": 0
       },
       "id": 9,
-      "panels": [
+      "panels": [],
+      "title": "Symptoms",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${DS_MAIN-INFLUXDB}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 7,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "repeat": "fields",
+      "repeatDirection": "v",
+      "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_MAIN-INFLUXDB}"
           },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineStyle": {
-                  "fill": "solid"
-                },
-                "lineWidth": 1,
-                "pointSize": 7,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 24,
-            "x": 0,
-            "y": 1
-          },
-          "id": 2,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "repeat": "fields",
-          "repeatDirection": "v",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "${DS_INFLUXDB}"
-              },
-              "query": "from(bucket: \"anomaly_detection\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /${fields:regex}/)\r\n  |> aggregateWindow(every: ${Resolution}, fn: mean)",
-              "refId": "A"
-            }
-          ],
-          "title": "Symptoms",
-          "type": "timeseries"
+          "query": "from(bucket: \"anomaly_detection\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /${fields:regex}/)\r\n  |> aggregateWindow(every: ${Resolution}, fn: mean)",
+          "refId": "A"
         }
       ],
       "title": "Symptoms",
-      "type": "row"
+      "type": "timeseries"
     },
     {
       "collapsed": false,
@@ -221,7 +221,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 1
+        "y": 8
       },
       "id": 28,
       "panels": [],
@@ -231,13 +231,13 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_MAIN-INFLUXDB}"
       },
       "gridPos": {
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 2
+        "y": 9
       },
       "id": 6,
       "options": {
@@ -260,7 +260,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
+        "uid": "${DS_MAIN-INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -322,7 +322,7 @@
         "h": 14,
         "w": 16,
         "x": 0,
-        "y": 8
+        "y": 15
       },
       "id": 19,
       "options": {
@@ -342,7 +342,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
+            "uid": "${DS_MAIN-INFLUXDB}"
           },
           "query": "from(bucket: \"anomaly_detection\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_field\"] =~ /${fields:regex}/)\r\n  |> aggregateWindow(every: ${Resolution}, fn: mean)",
           "refId": "A"
@@ -361,7 +361,7 @@
         "h": 14,
         "w": 8,
         "x": 16,
-        "y": 8
+        "y": 15
       },
       "id": 16,
       "options": {
@@ -369,9 +369,21 @@
           "orientation": "center",
           "size": "md"
         },
+        "confirmModal": {
+          "body": "Please confirm to update changed values",
+          "cancel": "Cancel",
+          "columns": {
+            "name": "Label",
+            "newValue": "New Value",
+            "oldValue": "Old Value"
+          },
+          "confirm": "Confirm",
+          "title": "Confirm update request"
+        },
+        "elementValueChanged": "",
         "elements": [
           {
-            "hidden": false,
+            "hidden": true,
             "id": "symptom-id",
             "labelWidth": 20,
             "queryField": {
@@ -387,7 +399,7 @@
             "value": ""
           },
           {
-            "hidden": false,
+            "hidden": true,
             "id": "event-id",
             "labelWidth": 20,
             "section": "symptom",
@@ -415,6 +427,7 @@
             "value": ""
           },
           {
+            "hidden": false,
             "id": "start-time",
             "labelWidth": 20,
             "queryField": {
@@ -424,12 +437,13 @@
             "section": "symptom",
             "title": "Start Time",
             "tooltip": "",
-            "type": "datetime",
+            "type": "string",
             "uid": "ae0be72d-c670-4543-ad48-3185a9604568",
             "unit": "",
             "value": ""
           },
           {
+            "hidden": false,
             "id": "end-time",
             "labelWidth": 20,
             "queryField": {
@@ -439,7 +453,7 @@
             "section": "symptom",
             "title": "End Time",
             "tooltip": "",
-            "type": "datetime",
+            "type": "string",
             "uid": "79ee4e85-2e03-4cf8-a4e2-a18fb2dc47be",
             "unit": "",
             "value": ""
@@ -469,55 +483,6 @@
             "uid": "550b3df7-f0df-4531-af5c-2c2956f83821",
             "unit": "",
             "value": 0
-          },
-          {
-            "id": "pattern",
-            "labelWidth": 20,
-            "options": [
-              {
-                "id": "drop",
-                "label": "Drop",
-                "type": "string",
-                "value": "drop"
-              },
-              {
-                "id": "spike",
-                "label": "Spike",
-                "type": "string",
-                "value": "spike"
-              },
-              {
-                "id": "mean-shift",
-                "label": "Mean Shift",
-                "type": "string",
-                "value": "mean-shift"
-              },
-              {
-                "id": "seasonality-shift",
-                "label": "Seasonality Shift",
-                "type": "string",
-                "value": "seasonality-shift"
-              },
-              {
-                "id": "trend",
-                "label": "Trend",
-                "type": "string",
-                "value": "trend"
-              },
-              {
-                "id": "other",
-                "label": "Other",
-                "type": "string",
-                "value": "other"
-              }
-            ],
-            "section": "symptom",
-            "title": "Pattern",
-            "tooltip": "",
-            "type": "select",
-            "uid": "8e392bd3-857e-433a-8143-b4803f980c73",
-            "unit": "",
-            "value": ""
           },
           {
             "id": "source-type",
@@ -561,13 +526,82 @@
             "value": ""
           },
           {
-            "hidden": false,
+            "id": "pattern",
+            "labelWidth": 20,
+            "options": [
+              {
+                "id": "drop",
+                "label": "Drop",
+                "type": "string",
+                "value": "drop"
+              },
+              {
+                "id": "spike",
+                "label": "Spike",
+                "type": "string",
+                "value": "spike"
+              },
+              {
+                "id": "mean-shift",
+                "label": "Mean Shift",
+                "type": "string",
+                "value": "mean-shift"
+              },
+              {
+                "id": "seasonality-shift",
+                "label": "Seasonality Shift",
+                "type": "string",
+                "value": "seasonality-shift"
+              },
+              {
+                "id": "trend",
+                "label": "Trend",
+                "type": "string",
+                "value": "trend"
+              },
+              {
+                "id": "other",
+                "label": "Other",
+                "type": "string",
+                "value": "other"
+              }
+            ],
+            "section": "semantic",
+            "title": "Pattern",
+            "tooltip": "",
+            "type": "select",
+            "uid": "8e392bd3-857e-433a-8143-b4803f980c73",
+            "unit": "",
+            "value": ""
+          },
+          {
             "id": "plane",
             "labelWidth": 20,
-            "section": "tags",
+            "options": [
+              {
+                "id": "forwarding",
+                "label": "Forwarding",
+                "type": "string",
+                "value": "forwarding"
+              },
+              {
+                "id": "control",
+                "label": "Control",
+                "type": "string",
+                "value": "control"
+              },
+              {
+                "id": "management",
+                "label": "Management",
+                "type": "string",
+                "value": "management"
+              }
+            ],
+            "optionsSource": "Custom",
+            "section": "semantic",
             "title": "Plane",
             "tooltip": "",
-            "type": "string",
+            "type": "select",
             "uid": "08e8d142-c121-4350-8886-9519250ab94f",
             "unit": "",
             "value": ""
@@ -576,7 +610,7 @@
             "hidden": false,
             "id": "action",
             "labelWidth": 20,
-            "section": "tags",
+            "section": "semantic",
             "title": "Action",
             "tooltip": "",
             "type": "string",
@@ -588,7 +622,7 @@
             "hidden": false,
             "id": "reason",
             "labelWidth": 20,
-            "section": "tags",
+            "section": "semantic",
             "title": "Reason",
             "tooltip": "",
             "type": "string",
@@ -600,11 +634,23 @@
             "hidden": false,
             "id": "cause",
             "labelWidth": 20,
-            "section": "tags",
+            "section": "semantic",
             "title": "Cause",
             "tooltip": "",
             "type": "string",
             "uid": "2e86f344-9034-49df-8275-e289df533fdf",
+            "unit": "",
+            "value": ""
+          },
+          {
+            "hidden": false,
+            "id": "url",
+            "labelWidth": 10,
+            "section": "tags",
+            "title": "URL",
+            "tooltip": "",
+            "type": "string",
+            "uid": "d39c486e-5f8e-4a6d-ba2c-0434f35dbf89",
             "unit": "",
             "value": ""
           }
@@ -626,12 +672,16 @@
               "name": "Symptom"
             },
             {
-              "id": "tags",
-              "name": "Tags"
-            },
-            {
               "id": "source",
               "name": "Source"
+            },
+            {
+              "id": "semantic",
+              "name": "Semantic"
+            },
+            {
+              "id": "tags",
+              "name": "Tags"
             }
           ],
           "variant": "split"
@@ -645,6 +695,8 @@
         },
         "resetAction": {
           "code": "console.log(data, response, initial, elements);",
+          "confirm": false,
+          "getPayload": "return {\n  rawSql: '',\n  format: 'table',\n}",
           "mode": "initial"
         },
         "saveDefault": {
@@ -659,18 +711,20 @@
           "text": "Confirm",
           "variant": "primary"
         },
+        "sync": true,
         "update": {
           "code": "if (response && response.ok) {\n  notifySuccess(['Update', 'Values updated successfully.']);\n  locationService.reload();\n} else {\n  notifyError(['Update', 'An error occured updating values.']);\n}",
           "confirm": false,
           "contentType": "application/json",
           "datasource": "PostgreSQL",
-          "getPayload": "const payload = {};\nelements.forEach((element) => {\n  if (!element.value) {\n    return;\n  }\n  payload[element.id] = element.value;\n})\nreturn payload;\n\n/**\n * Data Source payload\n */\nreturn {\n  rawSql: 'UPDATE symptom SET start_time=${payload}, end_time=${}, descript=${ }, concern=${ }, source=${ }, source_name=${}',\n  format: 'table',\n};",
+          "getPayload": "const payload = {};\nelements.forEach((element) => {\n  if (!element.value) {\n    return;\n  }\n  payload[element.id] = element.value;\n})\n\ndelete payload['symptom-id']\n\npayload['tags'] = {}\npayload['tags']['url'] = payload['url']\ndelete payload['url']\n\nreturn payload;\n\n/**\n * Data Source payload\n */\nreturn {\n  rawSql: 'UPDATE symptom SET start_time=${payload}, end_time=${}, descript=${ }, concern=${ }, source=${ }, source_name=${}',\n  format: 'table',\n};",
           "header": [],
           "method": "POST",
           "payloadMode": "custom",
           "url": "http://localhost:5001/api/rest/v1/symptom"
         }
       },
+      "pluginVersion": "3.6.0",
       "targets": [
         {
           "datasource": {
@@ -684,337 +738,9 @@
       ],
       "title": "Export Symptom Tags",
       "type": "volkovlabs-form-panel"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 22
-      },
-      "id": 8,
-      "panels": [],
-      "title": "Incident",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 23
-      },
-      "id": 7,
-      "options": {
-        "limit": 10,
-        "navigateAfter": "10m",
-        "navigateBefore": "10m",
-        "navigateToPanel": false,
-        "onlyFromThisDashboard": true,
-        "onlyInTimeRange": true,
-        "showTags": true,
-        "showTime": true,
-        "showUser": true,
-        "tags": [
-          "Incident"
-        ]
-      },
-      "title": "Incident List",
-      "type": "annolist"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${DS_INFLUXDB}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 7,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 15,
-        "w": 17,
-        "x": 0,
-        "y": 30
-      },
-      "id": 10,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${DS_INFLUXDB}"
-          },
-          "query": "from(bucket: \"anomaly_detection\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> aggregateWindow(every: ${Resolution}, fn: mean)",
-          "refId": "A"
-        }
-      ],
-      "title": "Incidents",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Dashboard --"
-      },
-      "description": "",
-      "gridPos": {
-        "h": 15,
-        "w": 7,
-        "x": 17,
-        "y": 30
-      },
-      "id": 12,
-      "options": {
-        "buttonGroup": {
-          "orientation": "center",
-          "size": "md"
-        },
-        "elements": [
-          {
-            "hidden": false,
-            "id": "incident-id",
-            "labelWidth": 15,
-            "queryField": {
-              "label": "undefined:id",
-              "value": "id"
-            },
-            "section": "incident",
-            "title": "Incident ID",
-            "tooltip": "",
-            "type": "string",
-            "uid": "66104fe9-5460-4c7b-82cc-09b0374cb4b4",
-            "unit": "",
-            "value": ""
-          },
-          {
-            "id": "incident-description",
-            "labelWidth": 15,
-            "queryField": {
-              "label": "undefined:text",
-              "value": "text"
-            },
-            "rows": 4,
-            "section": "incident",
-            "title": "Description",
-            "tooltip": "",
-            "type": "textarea",
-            "uid": "e041932c-0f46-4da6-9297-33c890d4a425",
-            "unit": "",
-            "value": ""
-          },
-          {
-            "id": "start-time",
-            "labelWidth": 15,
-            "queryField": {
-              "label": "undefined:time",
-              "value": "time"
-            },
-            "section": "incident",
-            "title": "Start Time",
-            "tooltip": "",
-            "type": "datetime",
-            "uid": "128df278-c58c-4b0c-97b6-1090cb25fab8",
-            "unit": "",
-            "value": ""
-          },
-          {
-            "id": "end-time",
-            "labelWidth": 15,
-            "queryField": {
-              "label": "undefined:timeEnd",
-              "value": "timeEnd"
-            },
-            "section": "incident",
-            "title": "End Time",
-            "tooltip": "",
-            "type": "datetime",
-            "uid": "5fcb1bb6-5408-46a8-8ae1-7e27e5451c4b",
-            "unit": "",
-            "value": ""
-          },
-          {
-            "id": "source-type",
-            "labelWidth": 20,
-            "options": [
-              {
-                "id": "human",
-                "label": "Human",
-                "type": "string",
-                "value": "human"
-              },
-              {
-                "id": "algorithm",
-                "label": "Algorithm",
-                "type": "string",
-                "value": "algorithm"
-              }
-            ],
-            "section": "source",
-            "title": "Source Type",
-            "tooltip": "",
-            "type": "radio",
-            "uid": "6dbfd2f4-8407-4cf3-bfea-0acdf640a779",
-            "unit": "",
-            "value": ""
-          },
-          {
-            "hidden": false,
-            "id": "source-name",
-            "labelWidth": 20,
-            "queryField": {
-              "label": "undefined:login",
-              "value": "login"
-            },
-            "section": "source",
-            "title": "Source Name",
-            "tooltip": "",
-            "type": "string",
-            "uid": "afc05a89-6273-454d-8e3f-f2f79f712f54",
-            "unit": "",
-            "value": ""
-          }
-        ],
-        "initial": {
-          "code": "console.log(data, response, initial, elements);\n\nreturn;\n\n/**\n * Data Source\n * Requires form elements to be defined\n */\nconst dataQuery = toDataQueryResponse(response);\nconsole.log(dataQuery);",
-          "contentType": "application/json",
-          "getPayload": "return {\n  rawSql: '',\n  format: 'table',\n}",
-          "highlight": false,
-          "highlightColor": "red",
-          "method": "query"
-        },
-        "layout": {
-          "orientation": "vertical",
-          "padding": 10,
-          "sections": [
-            {
-              "id": "incident",
-              "name": "Incident"
-            },
-            {
-              "id": "source",
-              "name": "Source"
-            }
-          ],
-          "variant": "split"
-        },
-        "reset": {
-          "backgroundColor": "purple",
-          "foregroundColor": "yellow",
-          "icon": "process",
-          "text": "Reset",
-          "variant": "hidden"
-        },
-        "resetAction": {
-          "code": "console.log(data, response, initial, elements);",
-          "mode": "initial"
-        },
-        "saveDefault": {
-          "icon": "save",
-          "text": "Save Default",
-          "variant": "hidden"
-        },
-        "submit": {
-          "backgroundColor": "purple",
-          "foregroundColor": "yellow",
-          "icon": "cloud-upload",
-          "text": "Confirm",
-          "variant": "primary"
-        },
-        "update": {
-          "code": "if (response && response.ok) {\n  notifySuccess(['Update', 'Values updated successfully.']);\n  locationService.reload();\n} else {\n  notifyError(['Update', 'An error occured updating values.']);\n}",
-          "confirm": false,
-          "contentType": "application/json",
-          "getPayload": "const payload = {};\n\nelements.forEach((element) => {\n  if (!element.value) {\n    return;\n  }\n\n  payload[element.id] = element.value;\n})\n\n// payload['metric_1'] = \"$field_1\"\n// payload['metric_2'] = \"$field_2\"\n// payload['metric_3'] = \"$field_3\"\n\nreturn payload;\n\n/**\n * Data Source payload\n */\nreturn {\n  rawSql: '',\n  format: 'table',\n};",
-          "header": [],
-          "method": "POST",
-          "payloadMode": "all",
-          "url": "http://localhost:5001/api/rest/v1/incident"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "datasource",
-            "uid": "-- Dashboard --"
-          },
-          "panelId": 10,
-          "refId": "A",
-          "topic": "annotations"
-        }
-      ],
-      "title": "Export Incident Tags",
-      "type": "volkovlabs-form-panel"
     }
   ],
-  "refresh": false,
+  "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -1022,9 +748,9 @@
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "1s",
-          "value": "1s"
+          "selected": true,
+          "text": "1m",
+          "value": "1m"
         },
         "description": "Resolution of the data",
         "hide": 0,
@@ -1034,7 +760,7 @@
         "name": "Resolution",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "1s",
             "value": "1s"
           },
@@ -1044,9 +770,14 @@
             "value": "10s"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "1m",
             "value": "1m"
+          },
+          {
+            "selected": false,
+            "text": "10m",
+            "value": "10m"
           },
           {
             "selected": false,
@@ -1059,7 +790,7 @@
             "value": "1d"
           }
         ],
-        "query": "1s,10s,1m,1h,1d",
+        "query": "1s,10s,1m,10m,1h,1d",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
@@ -1068,14 +799,14 @@
         "current": {},
         "datasource": {
           "type": "influxdb",
-          "uid": "${DS_INFLUXDB}"
+          "uid": "${DS_MAIN-INFLUXDB}"
         },
         "definition": "import \"influxdata/influxdb/schema\"\r\nschema.fieldKeys(bucket: \"anomaly_detection\")",
         "description": "Select the Metric you want to visualize in the fist Panel",
         "hide": 0,
         "includeAll": false,
         "label": "Metric 1",
-        "multi": true,
+        "multi": false,
         "name": "fields",
         "options": [],
         "query": "import \"influxdata/influxdb/schema\"\r\nschema.fieldKeys(bucket: \"anomaly_detection\")",
@@ -1088,13 +819,13 @@
     ]
   },
   "time": {
-    "from": "2023-10-19T22:48:37.576Z",
-    "to": "2023-10-19T22:49:13.465Z"
+    "from": "now-6h",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Symptom and Incident Tagging",
-  "uid": "cd11474b-935b-4348-b6b0-622bf3adfdb2",
-  "version": 30,
+  "title": "Symptom Tagging",
+  "uid": "a5901a0c-71cb-42b5-a9df-cba7b7f7885b",
+  "version": 4,
   "weekStart": ""
 }

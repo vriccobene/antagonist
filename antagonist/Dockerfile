@@ -6,6 +6,8 @@ WORKDIR /antagonist
 
 # Install any needed packages specified in requirements.txt
 ADD ./requirements.txt /antagonist/requirements.txt
+RUN apt update
+
 RUN pip install --trusted-host pypi.python.org -r /antagonist/requirements.txt
 
 # Copy the current directory contents into the container
