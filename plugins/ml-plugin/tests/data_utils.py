@@ -9,22 +9,11 @@ The `SMD` class has the following methods:
 The dataset is organized into three groups, with each group containing multiple machine files. The class provides the file structure information in the `data_structure` attribute.
 """
 
-"""This file contains the python code for reading the Server Machine Dataset (SMD) in the `data` folder.
-"""
-
-"""
-The `SMD` class provides a convenient interface for reading the Server Machine Dataset (SMD) used for machine learning tasks.
-
-The class initializes with a dataset folder path, and provides methods to read the dataset for a given group and/or metric. If no group or metric is specified, the dataset for all groups and all metrics is read.
-
-The `get_metric_names()` method returns a list of all the available metric names in the dataset.
-
-The `read_dataset()` method reads the dataset for the specified group and/or metric, and returns a pandas DataFrame containing the data.
-"""
 import os
+import datetime
 import pandas as pd
 
-from typing import Optional, List, Union
+from typing import List, Union
 
 
 class SMD:
@@ -139,7 +128,8 @@ class SMD:
         group_name: Union[List[str], str] = None,
         metric_name: Union[List[str], str] = None,
         train: bool = True,
-    ) -> pd.DataFrame:
+        retrieve_labels: bool = False,
+    ) -> List[pd.DataFrame]:
         """
         Reads the dataset for a given group and metric. If the group and metric are not specified,
         reads the dataset for all groups and all metrics.
@@ -148,9 +138,10 @@ class SMD:
             group_name (Union[List[str], str], optional): The name(s) of the group(s) to read. If not provided, all groups are read.
             metric_name (Union[List[str], str], optional): The name(s) of the metric(s) to read. If not provided, all metrics are read.
             train (bool, optional): Whether to read the training or test data. Defaults to True (training data).
+            retrieve_labels (bool, optional): Whether to retrieve labels for the test data. Defaults to False.
 
         Returns:
-            pd.DataFrame: A DataFrame containing the requested data.
+            List[pd.DataFrame]: A list of DataFrames containing the requested data.
         """
         data = {}
         files_to_read = []
@@ -165,8 +156,34 @@ class SMD:
             data[file] = pd.read_csv(
                 os.path.join(self.train_folder if train else self.test_folder, file),
                 header=None,
-                columns=self.get_metric_names(),
+                names=self.get_metric_names(),
                 usecols=[metric_name] if metric_name else None,
             )
 
-        return pd.concat(data.values(), axis=1, keys=data.keys())
+        if not train and retrieve_labels:
+            # load table for each file and concatenate to the dataframe read before
+            for file in files_to_read:
+                data[file] = pd.concat(
+                    [
+                        data[file],
+                        pd.read_csv(
+                            os.path.join(self.test_labels_folder, file),
+                            header=None,
+                            names=["label"],
+                            usecols=[0],
+                            index_col=False,
+                        ),
+                    ],
+                    axis=1,
+                )
+        
+        # Adding timestamp column
+        for file, df in data.items():
+            df ['timestamp'] = pd.date_range(
+                start=datetime.datetime(2020, 1, 1, 0, 0, 0),
+                freq='min',
+                periods=df.shape[0],
+                name='timestamp',
+            )
+
+        return list(data.values())
