@@ -1,1 +1,4 @@
 pandas
+plotly
+plotly-resampler
+ipywidgets>=7.0.0
