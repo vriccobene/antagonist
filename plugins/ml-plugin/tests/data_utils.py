@@ -176,14 +176,56 @@ class SMD:
                     ],
                     axis=1,
                 )
-        
+
         # Adding timestamp column
         for file, df in data.items():
-            df ['timestamp'] = pd.date_range(
+            df["timestamp"] = pd.date_range(
                 start=datetime.datetime(2020, 1, 1, 0, 0, 0),
-                freq='min',
+                freq="min",
                 periods=df.shape[0],
-                name='timestamp',
+                name="timestamp",
             )
 
-        return list(data.values())
+        return list(data.values()), list(data.keys())
+
+    def get_interpretation_labels(self, filename):
+        """
+        Reads the interpretation labels for a given machine file. The interpretation labels
+        represents the index of the metrics that are anomalous in each period of time.
+
+        Args:
+            filename (str): The name of the machine file.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing the interpretation labels.
+        """
+        inter_labels = pd.read_csv(
+            os.path.join(self.interpretation_labels_folder, filename),
+            header=None,
+            names=["period", "metrics"],
+            index_col=False,
+            sep=":",
+        )
+
+        # split intervals
+        inter_labels[["start", "end"]] = (
+            inter_labels["period"].str.split("-", expand=True).astype(int)
+        )
+
+        # Add timestamps
+        timestamps = pd.date_range(
+            start=datetime.datetime(2020, 1, 1, 0, 0, 0),
+            freq="min",
+            periods=inter_labels['end'].max()+1,
+            name="timestamp",
+        ).to_frame().reset_index(drop=True)
+
+        inter_labels['start'] = timestamps['timestamp'].iloc[inter_labels['start']].values
+        inter_labels['end'] = timestamps['timestamp'].iloc[inter_labels['end']].values
+
+        # Convert metrics to array
+        inter_labels['metrics'] = inter_labels['metrics'].str.split(",").apply(
+            lambda x: [int(i) for i in x]
+        )
+
+        return inter_labels[["start", "end", "metrics"]]
