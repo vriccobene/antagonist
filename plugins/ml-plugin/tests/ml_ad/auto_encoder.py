@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader
 
 
 class Vanilla_AE(nn.Module):
@@ -137,7 +137,8 @@ class Vanilla_AE(nn.Module):
                 else:
                     early_stop_counter += 1
                     if early_stop_counter >= patience:
-                        print(f"Early stopping at epoch {epoch+1}")
+                        if verbose > 0:
+                            print(f"Early stopping at epoch {epoch+1}")
                         break
 
     def predict(self, data):
