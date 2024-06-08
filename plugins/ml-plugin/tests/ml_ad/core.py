@@ -123,7 +123,7 @@ class AENetworkAnomaly:
     @staticmethod
     def load(model_folder):
         """Loads the torch model, the scaler, the parameters and the threshold from the input folder."""
-        ae = torch.load(os.path.join(model_folder, "ae_model.pt"), weights_only=False)
+        ae_state = torch.load(os.path.join(model_folder, "ae_model.pt"))
         with open(os.path.join(model_folder, "scaler.pkl"), "rb") as f:
             scaler = pickle.load(f)
         with open(os.path.join(model_folder, "threshold.pkl"), "rb") as f:
@@ -132,7 +132,8 @@ class AENetworkAnomaly:
             params = pickle.load(f)
 
         model = AENetworkAnomaly(**params)
-        model.ae = ae
+        model.ae = Vanilla_AE(n_inputs=params["n_inputs"], layer_sizes=params["layer_sizes"])
+        model.ae.load_state_dict(ae_state)
         model.scaler = scaler
         model.threshold = threshold
 
