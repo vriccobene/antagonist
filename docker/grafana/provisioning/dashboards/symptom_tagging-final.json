@@ -242,8 +242,8 @@
       "id": 6,
       "options": {
         "limit": 10,
-        "navigateAfter": "10m",
-        "navigateBefore": "10m",
+        "navigateAfter": "1h",
+        "navigateBefore": "1h",
         "navigateToPanel": false,
         "onlyFromThisDashboard": false,
         "onlyInTimeRange": true,
@@ -819,7 +819,7 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-40d",
     "to": "now"
   },
   "timepicker": {},

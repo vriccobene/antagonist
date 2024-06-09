@@ -33,8 +33,8 @@ A docker compose file is provided as part of the project (under the docker direc
 That docker compose will spin up 4 containers: grafana, influxDB, antagonist, postgres.
 
 ## Prepare the data
-After deploying the containers, you will need to add the data to InfluxDB.
-This can be done by using the provided script to load up the data (script provided in the scripts directory).
+After deploying the c ontainers, you will need to add the data to InfluxDB.
+This can be done by using theprovided script to load up the data (script provided in the scripts directory).
 
     cd scripts/data_load
     python -m pip install -r requirements.txt
@@ -53,7 +53,15 @@ Two pre-defined Grafana dashboards have to be load up on the system, which are l
 
 They can be imported in Grafana, following the standard import procedure.
 
-## Disclaimer
+# Data for the Demo
+
+ ## Where to get the data?
+ For the initial demo we are taking some opensource data from the following repository:
+ https://github.com/NetManAIOps/OmniAnomaly.git
+
+
+
+# Disclaimer
 The User of this project is solely responsible for the misuse or unlawful use of this software and Content. 
 Authors disclaim any responsibility for harm, loss, or damage resulting from such misuse. 
 This includes but is not limited to unlawful activities, data loss, or adverse effects of any kind. 
