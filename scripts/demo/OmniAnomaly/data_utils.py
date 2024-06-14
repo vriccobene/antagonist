@@ -61,8 +61,6 @@ def store_network_anomalies(network_anomaly_json):
     for network_anomaly in new_json:
         old_id = network_anomaly.pop('id', None)
         response = requests.post("http://localhost:5001/api/rest/v1/incident", json=network_anomaly)
-        print(response.json())
-        print(network_anomaly)
         response.raise_for_status()
         res[old_id] = response.json()
     return res
@@ -86,6 +84,9 @@ def store_symptoms_to_network_anomalies(symptoms_to_network_anomalies_json):
 
 
 def store_data_to_db(data_to_store):
+    print(data_to_store['grafana_annotations'])
+
+
     store_grafana_annotations(data_to_store['grafana_annotations'])
     network_anomaly_ids_to_replace = store_network_anomalies(data_to_store['network_anomalies'])
     symptom_id_to_replace = store_symptoms(data_to_store['symptoms'])

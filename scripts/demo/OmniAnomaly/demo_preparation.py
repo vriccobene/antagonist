@@ -1,10 +1,12 @@
 import uuid
 import time
 import math
+import json
 import pathlib
 import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
+from grafana import dashboard_api
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
@@ -18,11 +20,14 @@ INFLUX_BUCKET = 'anomaly_detection'
 INFLUX_TOKEN = 'qT83QJVt1wENkP3s8Lfgyw0A5mGMQ5NFDApl5xOYKC3B_7tM5eVm8G0cnUsCzEG_8J3YEk0o2i6oH6L9masMxA=='
 
 
-DEMO_DATA_DIRECTORY = pathlib.Path("./data/OmniAnomaly/") \
-        / "ServerMachineDataset"
+DEMO_DATA_DIRECTORY = pathlib.Path(".") \
+        / "data" / "OmniAnomaly" / "ServerMachineDataset"
 DATA_TEST_SET = DEMO_DATA_DIRECTORY / "test"
 DATA_TRAINING_SET = DEMO_DATA_DIRECTORY / "train"
 DATA_LABELS = DEMO_DATA_DIRECTORY / "interpretation_label"
+
+
+existing_dashboards = dict()
 
 
 def metric_names(indexes: list = None) -> list:
@@ -38,49 +43,6 @@ def metric_names(indexes: list = None) -> list:
     indexes = indexes or range(len(names))
     names = [names[i] for i in indexes]
     return names
-
-
-# def metric_attributes(metric: str) -> dict:
-#     attributes = {
-#         "cpu_r": {},
-#         "load_1": {},
-#         "load_5": {},
-#         "load_15": {},
-#         "mem_shmem": {},
-#         "mem_u": {},
-#         "mem_u_e": {},
-#         "total_mem": {},
-#         "disk_q": {},
-#         "disk_r": {},
-#         "disk_rb": {},
-#         "disk_svc": {},
-#         "disk_u": {},
-#         "disk_w": {},
-#         "disk_wa": {},
-#         "disk_wb": {},
-#         "si": {},
-#         "so": {},
-#         "eth1_fi": {},
-#         "eth1_fo": {},
-#         "eth1_pi": {},
-#         "eth1_po": {},
-#         "tcp_tw": {},
-#         "tcp_use": {},
-#         "active_opens": {},
-#         "curr_estab": {},
-#         "in_errs": {},
-#         "in_segs": {},
-#         "listen_overflows": {},
-#         "out_rsts": {},
-#         "out_segs": {},
-#         "passive_opens": {},
-#         "retransegs": {},
-#         "tcp_timeouts": {},
-#         "udp_in_dg": {},
-#         "udp_out_dg": {},
-#         "udp_rcv_buf_errs": {},
-#         "udp_snd_buf_errs": {},
-#     }
 
 
 def get_group_from_machine(machine_file_name: str) -> str:
@@ -108,7 +70,7 @@ def format_time(epoch_time: int) -> str:
     return time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(epoch_time))
 
 
-def create_symptom_grafana_annotation(start_time: int, end_time: int, description: str, tags: list) -> dict:
+def create_symptom_grafana_annotation(start_time: int, end_time: int, description: str, tags: list, dashboard_id:str=None) -> dict:
     """
     Create a symptom annotation in Grafana format
 
@@ -122,9 +84,10 @@ def create_symptom_grafana_annotation(start_time: int, end_time: int, descriptio
     :return: A dictionary representing the symptom annotation in Grafana format
     :rtype: dict
     """
+    dashboard_id = dashboard_id or 'a5901a0c-71cb-42b5-a9df-cba7b7f7885b'
     tags = tags or []
     symptom_grafana_annotation = {
-        'dashboardUID': 'a5901a0c-71cb-42b5-a9df-cba7b7f7885b', 
+        'dashboardUID': dashboard_id, 
         'panelId': 2, 
         'time': int(f'{start_time}000'), 
         'timeEnd': int(f'{end_time}000'), 
@@ -158,7 +121,7 @@ def create_network_anomaly_grafana_annotation(start_time: int, end_time: int, de
     }
     
 
-def create_symptom(group, machine, start_time, end_time, event_id, metric):
+def create_symptom(group, machine, start_time, end_time, event_id, metric, description):
     return {
         'start-time': format_time(start_time),
         'end-time': format_time(end_time),
@@ -166,13 +129,14 @@ def create_symptom(group, machine, start_time, end_time, event_id, metric):
         'event-id': event_id, 
         'concern-score': 0.9, 
         'confidence-score': 1, 
+        'description': description, 
         'source-name': 'ground-truth', 'source-type': 'human', 
-        'action': 'drop', 'cause': 'x', 'reason': '{metric}', 'plane': 'forwarding', 'pattern': '', 'description': '', 
+        'action': 'drop', 'cause': 'x', 'reason': '{metric}', 'plane': 'forwarding', 'pattern': '', 
         'tags': {
             'machine': machine,
             'group': group,
-            'metric': metric,
-            'url': f'http://localhost:3000/grafana/d/a5901a0c-71cb-42b5-a9df-cba7b7f7885b/symptom-tagging?orgId=1&from={start_time}000&to={end_time}000&var-Resolution=10m&var-fields={metric}'}
+            'metric': metric
+        }
     }
 
 
@@ -191,7 +155,7 @@ def convert_labels_to_antagonist_format(data):
             for label in machine_labels[machine]:
                 ts = label['rows'][0]
 
-                # TODO: FIX YANG MODEL - Can the event ID can be safely removed now
+                # TODO: FIX YANG MODEL - Can the event ID can be safely removed now?
                 na_id = str(uuid.uuid4())
                 network_anomaly = {
                     'author': {'author_type': 'human', 'name': 'admin', 'version': 0}, 
@@ -206,10 +170,10 @@ def convert_labels_to_antagonist_format(data):
 
                 res['network_anomalies'].append(network_anomaly)
                 for metric in label['columns']:
+                    description = f'Symptom on {metric} of {machine}'
                     sym = create_symptom(
-                        group, machine, label["rows"][0], label["rows"][1], na_id, metric
+                        group, machine, label["rows"][0], label["rows"][1], na_id, metric, description
                     )
-                    res['symptoms'].append(sym)
                     res['symptoms-to-network-anomalies'].append({
                         "incident-id": na_id, 
                         "symptom-id": sym['id']
@@ -220,10 +184,20 @@ def convert_labels_to_antagonist_format(data):
                         create_symptom_grafana_annotation(
                             label["rows"][0], 
                             label["rows"][1], 
-                            f'Symptom on {metric} of {machine}', 
-                            [machine, metric, group]
+                            description, 
+                            [f"machine:{machine}", f"metric:{metric}", f"group:{group}"]
                         ))
-                    
+                    new_dashboard_id, new_url = generate_grafana_dashboard(sym, label["rows"][0], label["rows"][1])
+                    # res['grafana_annotations'].append(
+                    #     create_symptom_grafana_annotation(
+                    #         label["rows"][0], 
+                    #         label["rows"][1], 
+                    #         f'Symptom on {metric} of {machine}', 
+                    #         [f"machine:{machine}", f"metric:{metric}", f"group:{group}"],
+                    #         new_dashboard_id
+                    #     ))
+                    sym['tags']['url'] = new_url
+                    res['symptoms'].append(sym)
                 label_id += 1
 
             res['grafana_annotations'].append(
@@ -342,6 +316,42 @@ def adjust_labels_timestamps(labels, now, overall_data_len, test_data):
     return res
 
 
+def create_dashboard(label, dashboard_name, annotation_tags, dashboard_id):
+    api = dashboard_api.GrafanaDashboardApi()
+    path = pathlib.Path(__file__).parent.resolve()
+    with open(f"{path}/Symptom Tagging-20240611.json", "r") as dashboard_file:
+        f_content = dashboard_file.read()
+        f_content = f_content.replace("#METRIC_NAME_HERE", str(label['tags']['metric']))
+        f_content = f_content.replace("#DASHBOARD_NAME_HERE", str(dashboard_name))
+        f_content = f_content.replace("#ANNOTATION_TAGS_HERE", str(annotation_tags).replace('"', '').replace("'", '"'))
+        f_content = f_content.replace("#DASHBOARD_ID_HERE", str(dashboard_id))
+        f_content = f_content.replace("#MACHINE_NAME_HERE", str(label['tags']['machine']))
+        
+        dashboard_template = json.loads(f_content)
+        api.create(dashboard_template)
+
+
+def generate_grafana_dashboard(label, start_time, stop_time):
+    dashboard_name = f"{label['tags']['machine']} - {label['tags']['metric']}"
+    tag_machine = label['tags']['machine']
+    tag_group = label['tags']['group']
+    tag_metric = label['tags']['metric']
+    combined_tag = f"{tag_group}-{tag_machine}-{tag_metric}"
+    annotation_tags = [
+        f"machine:{tag_machine}", 
+        f"group:{tag_group}", 
+        f"metric:{tag_metric}"
+    ]
+    
+    dashboard_id = existing_dashboards.get(combined_tag, None)
+    if not dashboard_id:
+        dashboard_id = uuid.uuid4()
+        create_dashboard(label, dashboard_name, annotation_tags, dashboard_id)
+        existing_dashboards[combined_tag] = dashboard_id
+    url = f"http://localhost:3000/grafana/d/{dashboard_id}/orgId=1&from={start_time}&to={stop_time}&var-Resolution=1m&var-fields={label['tags']['metric']}"
+    return str(dashboard_id), url
+
+
 def main():
     # explore_and_visualize_telemetry_data()
     training_data = load_data(DATA_TRAINING_SET)
@@ -358,15 +368,16 @@ def main():
             overall_data_len[group][machine] = len(test_data[group][machine])
     
     now = int(time.time())
-    # Store data into influxDB
-    for group in overall_data.keys():
-        for machine in overall_data[group].keys():
-            store_dataframe(overall_data[group][machine], group, machine, now)
+    # # Store data into influxDB
+    # for group in overall_data.keys():
+    #     for machine in overall_data[group].keys():
+    #         store_dataframe(overall_data[group][machine], group, machine, now)
 
     # Add the labels to Antagonist
     labels = load_labels(DATA_LABELS)
     labels = adjust_labels_timestamps(labels, now, overall_data_len, test_data)
     formatted_labels = convert_labels_to_antagonist_format(labels)
+    print(formatted_labels['grafana_annotations'])
     data_utils.store_data_to_db(formatted_labels)
 
 

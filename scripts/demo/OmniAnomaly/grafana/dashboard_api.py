@@ -17,11 +17,23 @@ class GrafanaDashboardApi:
             "Authorization": f"Bearer {self._auth_api.get_key()}"
         }
     
-    def     get(self, uid=None):
+    def get(self, uid=None):
         url = self._url_builder(uid)
         response = requests.get(url, headers=self._headers)
         return response.json() if response.status_code == 200 else None
     
+    def create(self, dashboard):
+        params = {
+            "dashboard": dashboard,
+            # "folderUid": "l3KqBxCMz",
+            "message": "This is a just a Test",
+            "overwrite": False
+        }
+
+        response = requests.post(
+            f"{self._base_api_path}/db", headers=self._headers, json=params)
+        return response.json() if response.status_code == 200 else None
+
     def _url_builder(self, uid=None):
         no_id_url = f"{self._base_api_path}"
         if uid:
