@@ -1,12 +1,12 @@
 import uuid
 import time
 import math
-import json
 import pathlib
 import datetime
+import requests
 import pandas as pd
 import matplotlib.pyplot as plt
-from grafana import dashboard_api
+# from grafana import dashboard_api
 from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
 
@@ -119,13 +119,12 @@ def create_network_anomaly_grafana_annotation(start_time: int, end_time: int, de
         'text': description, 
         'tags': ['Incident']
     }
-    
 
-def create_symptom(group, machine, start_time, end_time, event_id, metric, description):
+
+def define_symptom(group, machine, start_time, end_time, event_id, metric, description):
     return {
         'start-time': format_time(start_time),
         'end-time': format_time(end_time),
-        'id': str(uuid.uuid4()), 
         'event-id': event_id, 
         'concern-score': 0.9, 
         'confidence-score': 1, 
@@ -140,6 +139,16 @@ def create_symptom(group, machine, start_time, end_time, event_id, metric, descr
     }
 
 
+def define_network_anomaly(machine, timestamp):
+    return { 
+        'author': {'author_type': 'human', 'name': 'admin', 'version': 0}, 
+        'description': f'Network Anomaly on {machine} - {datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d at %H")}', 
+        'state': 'Confirmed', 
+        'version': 2,
+        'symptoms': []
+    }
+
+
 def convert_labels_to_antagonist_format(data):
     res = {
         'grafana_annotations': [],
@@ -148,61 +157,22 @@ def convert_labels_to_antagonist_format(data):
         'symptoms-to-network-anomalies': []
     }
 
-    for group in data.keys():
-        machine_labels = data[group]
+    res = {'network_anomalies': []}
+    for group, machine_labels in data.items():
         for machine in machine_labels:
-            label_id = 1
             for label in machine_labels[machine]:
-                ts = label['rows'][0]
+                timestamp = label['rows'][0]
+                network_anomaly = define_network_anomaly(machine, timestamp)
 
-                # TODO: FIX YANG MODEL - Can the event ID can be safely removed now?
-                na_id = str(uuid.uuid4())
-                network_anomaly = {
-                    'author': {'author_type': 'human', 'name': 'admin', 'version': 0}, 
-                    'description': f'Network Anomaly on {machine} - {datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d at %H")}', 
-                    'id': na_id, 
-                    'state': 'Confirmed', 
-                    'version': 2
-                }
-
-                start_time = 999999999999999
-                end_time = 0
-
-                res['network_anomalies'].append(network_anomaly)
+                event_id = str(uuid.uuid4())
                 for metric in label['columns']:
                     description = f'Symptom on {metric} of {machine}'
-                    sym = create_symptom(
-                        group, machine, label["rows"][0], label["rows"][1], na_id, metric, description
+                    symptom = define_symptom(
+                        group, machine, label["rows"][0], label["rows"][1], 
+                        event_id, metric, description
                     )
-                    res['symptoms-to-network-anomalies'].append({
-                        "incident-id": na_id, 
-                        "symptom-id": sym['id']
-                    })
-                    start_time = min(start_time, label["rows"][0])
-                    end_time = max(end_time, label["rows"][1])
-                    res['grafana_annotations'].append(
-                        create_symptom_grafana_annotation(
-                            label["rows"][0], 
-                            label["rows"][1], 
-                            description, 
-                            [f"machine:{machine}", f"metric:{metric}", f"group:{group}"]
-                        ))
-                    new_dashboard_id, new_url = generate_grafana_dashboard(sym, label["rows"][0], label["rows"][1])
-                    # res['grafana_annotations'].append(
-                    #     create_symptom_grafana_annotation(
-                    #         label["rows"][0], 
-                    #         label["rows"][1], 
-                    #         f'Symptom on {metric} of {machine}', 
-                    #         [f"machine:{machine}", f"metric:{metric}", f"group:{group}"],
-                    #         new_dashboard_id
-                    #     ))
-                    sym['tags']['url'] = new_url
-                    res['symptoms'].append(sym)
-                label_id += 1
-
-            res['grafana_annotations'].append(
-                create_network_anomaly_grafana_annotation(
-                    start_time, end_time, network_anomaly['description']))
+                    network_anomaly['symptoms'].append(symptom)
+                res['network_anomalies'].append(network_anomaly)
 
     return res
 
@@ -317,39 +287,62 @@ def adjust_labels_timestamps(labels, now, overall_data_len, test_data):
 
 
 def create_dashboard(label, dashboard_name, annotation_tags, dashboard_id):
-    api = dashboard_api.GrafanaDashboardApi()
-    path = pathlib.Path(__file__).parent.resolve()
-    with open(f"{path}/Symptom Tagging-20240611.json", "r") as dashboard_file:
-        f_content = dashboard_file.read()
-        f_content = f_content.replace("#METRIC_NAME_HERE", str(label['tags']['metric']))
-        f_content = f_content.replace("#DASHBOARD_NAME_HERE", str(dashboard_name))
-        f_content = f_content.replace("#ANNOTATION_TAGS_HERE", str(annotation_tags).replace('"', '').replace("'", '"'))
-        f_content = f_content.replace("#DASHBOARD_ID_HERE", str(dashboard_id))
-        f_content = f_content.replace("#MACHINE_NAME_HERE", str(label['tags']['machine']))
+    pass
+    # api = dashboard_api.GrafanaDashboardApi()
+    # path = pathlib.Path(__file__).parent.resolve()
+    # with open(f"{path}/Symptom Tagging-20240611.json", "r") as dashboard_file:
+    #     f_content = dashboard_file.read()
+    #     f_content = f_content.replace("#METRIC_NAME_HERE", str(label['tags']['metric']))
+    #     f_content = f_content.replace("#DASHBOARD_NAME_HERE", str(dashboard_name))
+    #     f_content = f_content.replace("#ANNOTATION_TAGS_HERE", str(annotation_tags).replace('"', '').replace("'", '"'))
+    #     f_content = f_content.replace("#DASHBOARD_ID_HERE", str(dashboard_id))
+    #     f_content = f_content.replace("#MACHINE_NAME_HERE", str(label['tags']['machine']))
         
-        dashboard_template = json.loads(f_content)
-        api.create(dashboard_template)
+    #     dashboard_template = json.loads(f_content)
+    #     api.create(dashboard_template)
 
 
-def generate_grafana_dashboard(label, start_time, stop_time):
-    dashboard_name = f"{label['tags']['machine']} - {label['tags']['metric']}"
-    tag_machine = label['tags']['machine']
-    tag_group = label['tags']['group']
-    tag_metric = label['tags']['metric']
-    combined_tag = f"{tag_group}-{tag_machine}-{tag_metric}"
-    annotation_tags = [
-        f"machine:{tag_machine}", 
-        f"group:{tag_group}", 
-        f"metric:{tag_metric}"
-    ]
+# def generate_grafana_dashboard(label, start_time, stop_time):
+#     dashboard_name = f"{label['tags']['machine']} - {label['tags']['metric']}"
+#     tag_machine = label['tags']['machine']
+#     tag_group = label['tags']['group']
+#     tag_metric = label['tags']['metric']
+#     combined_tag = f"{tag_group}-{tag_machine}-{tag_metric}"
+#     annotation_tags = [
+#         f"machine:{tag_machine}", 
+#         f"group:{tag_group}", 
+#         f"metric:{tag_metric}"
+#     ]
     
-    dashboard_id = existing_dashboards.get(combined_tag, None)
-    if not dashboard_id:
-        dashboard_id = uuid.uuid4()
-        create_dashboard(label, dashboard_name, annotation_tags, dashboard_id)
-        existing_dashboards[combined_tag] = dashboard_id
-    url = f"http://localhost:3000/grafana/d/{dashboard_id}/orgId=1&from={start_time}&to={stop_time}&var-Resolution=1m&var-fields={label['tags']['metric']}"
-    return str(dashboard_id), url
+#     dashboard_id = existing_dashboards.get(combined_tag, None)
+#     if not dashboard_id:
+#         dashboard_id = uuid.uuid4()
+#         create_dashboard(label, dashboard_name, annotation_tags, dashboard_id)
+#         existing_dashboards[combined_tag] = dashboard_id
+#     url = f"http://localhost:3000/grafana/d/{dashboard_id}/orgId=1&from={start_time}&to={stop_time}&var-Resolution=1m&var-fields={label['tags']['metric']}"
+#     return str(dashboard_id), url
+
+
+def store_data_to_db(data_to_store):
+    # Store the data in Antagonist
+    for network_anomaly in data_to_store['network_anomalies']:
+        network_anomaly_data = network_anomaly.copy()
+        symptoms = network_anomaly_data.pop('symptoms')
+        response = requests.post("http://localhost:5001/api/rest/v1/incident", json=network_anomaly_data)
+        response.raise_for_status()
+        network_anomaly_id = response.json()
+    
+        # Store Symptoms
+        for symptom in symptoms:
+            response = requests.post("http://localhost:5001/api/rest/v1/symptom", json=symptom)
+            response.raise_for_status()
+            symptom_id = response.json()
+        
+            # Store Symptoms to Network Anomalies
+            symmptom_to_network_anomaly = {"incident-id": network_anomaly_id, "symptom-id": symptom_id}
+            response = requests.post(
+                "http://localhost:5001/api/rest/v1/incident/symptom", json=symmptom_to_network_anomaly)
+            response.raise_for_status()
 
 
 def main():
@@ -368,17 +361,17 @@ def main():
             overall_data_len[group][machine] = len(test_data[group][machine])
     
     now = int(time.time())
-    # # Store data into influxDB
-    # for group in overall_data.keys():
-    #     for machine in overall_data[group].keys():
-    #         store_dataframe(overall_data[group][machine], group, machine, now)
 
     # Add the labels to Antagonist
     labels = load_labels(DATA_LABELS)
     labels = adjust_labels_timestamps(labels, now, overall_data_len, test_data)
     formatted_labels = convert_labels_to_antagonist_format(labels)
-    print(formatted_labels['grafana_annotations'])
-    data_utils.store_data_to_db(formatted_labels)
+    store_data_to_db(formatted_labels)
+
+    # Store data into influxDB
+    for group in overall_data.keys():
+        for machine in overall_data[group].keys():
+            store_dataframe(overall_data[group][machine], group, machine, now)
 
 
 if __name__ == "__main__":

@@ -95,6 +95,18 @@ services:
     networks:
       - influx
       - postgres
+  
+  dasboard-manager:
+    image: dashboard-manager:latest
+    container_name: dashboard-manager
+    restart: always
+    depends_on:
+      - antagonist-core
+    ports:
+      - "5002:5002"
+    networks:
+      - influx
+      - postgres
 
 networks:
   influx:
@@ -106,3 +118,4 @@ volumes:
   influx:
   postgres:
   grafana:
+

@@ -23,7 +23,10 @@ LOGGING_LEVEL = logging.DEBUG
 POSTGRESQL_DB_NAME = 'incidents'
 POSTGRESQL_DB_USER = 'antagonist'
 POSTGRESQL_DB_PASSWORD = 'antagonist-password'
-POSTGRESQL_DB_HOST = 'postgres'
+# POSTGRESQL_DB_HOST = 'localhost'#'postgres'
+# POSTGRESQL_DB_PORT = '5433'#'5432'
+POSTGRESQL_DB_HOST = 'postgres-db'
 POSTGRESQL_DB_PORT = '5432'
-# POSTGRESQL_DB_HOST = 'postgres-db'
-# POSTGRESQL_DB_PORT = '5432'
+
+DASHBOARD_MANAGER_HOST = 'dashboard-manager'
+DASHBOARD_MANAGER_PORT = '5002'
