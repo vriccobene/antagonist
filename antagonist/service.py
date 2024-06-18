@@ -1,6 +1,6 @@
-import json
-from config import env
+import requests
 import logging
+from config import env
 from urllib.parse import urlparse, parse_qs
 from flask import Flask, jsonify, request
 from database import postgresql
@@ -8,6 +8,8 @@ from domain import incident as inc, symptom as sym, symptom_to_incident as sti
 
 logging.basicConfig(level=env.LOGGING_LEVEL)
 logger = logging.getLogger(__name__)
+
+ANOMALY_METADATA_FULLY_SUPPORTED = False
 
 database = None
 
@@ -28,6 +30,10 @@ def symptom():
         # Store the symptom in the database
         try:
             symptom_id = database.store_symptom(symptom_obj)
+            symptom_obj.id = symptom_id
+            res = create_dashboard_for_symptom(symptom_obj)
+            logger.info(f"Dashboard creation response: {res}")
+            database.add_tag_to_symptom(symptom_id, "url", res)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
         return jsonify(symptom_id), 200
@@ -165,6 +171,39 @@ def initialize_database():
         database=env.POSTGRESQL_DB_NAME, 
         user=env.POSTGRESQL_DB_USER, 
         password=env.POSTGRESQL_DB_PASSWORD)
+
+
+def _prepare_dashboard_data(symptom):
+    res = dict(symptom)
+    res['id'] = str(res['id'])
+
+    res['event-id'] = str(res['event-id'])
+    res['start-time'] = int(res['start-time'].timestamp())
+    res['end-time'] = int(res['end-time'].timestamp())
+    
+    # If draft-netana-nmop-network-anomaly-semantics is supported, need to use the proper tags
+    if ANOMALY_METADATA_FULLY_SUPPORTED:
+        res['tags'] = {
+            "plane": res['plane'],
+            "action": res['action'],
+            "cause": res['cause'],
+            "reason": res['reason']
+        }
+    
+    res['dashboard-name'] = " - ".join([f"{k}:{v}" for k, v in res['tags'].items()])
+    return res
+
+
+def create_dashboard_for_symptom(symptom):
+    logger.info("Creating a new dashboard")
+    try:
+        respose = requests.post(
+            f"http://{env.DASHBOARD_MANAGER_HOST}:{env.DASHBOARD_MANAGER_PORT}/api/rest/v1/dashboard", 
+            json=_prepare_dashboard_data(symptom))
+    except Exception as e:
+        logger.error(f"Error while creating dashboard: {e}")
+        return ""
+    return respose.json()
 
 
 if __name__ == "__main__":

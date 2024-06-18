@@ -149,6 +149,16 @@ class PostgresqlDatabase(database_base.DatabaseBase):
         except (Exception, psycopg2.Error) as error:
             logger.error("Error while storing symptom:", error)
             return None
+    
+    def add_tag_to_symptom(self, symptom_id, tag_key, tag_value):
+        try:
+            cursor = self.connection.cursor()
+            self._store_tags(cursor, symptom_id, {tag_key: tag_value})
+            self.connection.commit()
+        except (Exception, psycopg2.Error) as error:
+            logger.info(f"Got an exception here on this tag: {tag_key} = {tag_value}")
+            logger.error("Error while adding new tag:", error)
+            return None
 
     def store_symptom_incident_relation(
             self, symptom_to_incident:symptom_to_incident.SymptomToIncident):

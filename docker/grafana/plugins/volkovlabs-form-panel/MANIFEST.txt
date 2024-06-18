@@ -8,31 +8,31 @@ Hash: SHA512
   "signedByOrg": "volkovlabs",
   "signedByOrgName": "Volkov Labs",
   "plugin": "volkovlabs-form-panel",
-  "version": "3.7.0",
-  "time": 1710298136066,
+  "version": "3.8.0",
+  "time": 1717121412317,
   "keyId": "7e4d0c6a708866e7",
   "files": {
-    "LICENSE": "122f29b3b6f2a0d5ea3cd3d770c297b9582e03bc1aaaf0f3e0bd751011b8aefe",
     "README.md": "550d8a807fbea38f79f2ec2912946b965145b96064d1f3d590b3d32596d2f111",
-    "module.js.map": "d04c35523e2353b3d5d603f9cd7faaf31ed0a4d9c72966d943cb9bef340e7b9a",
-    "module.js": "c3811dfbd16ff1c4f2a1750e1aec446375ab1538935fc96077875f418243ae72",
-    "CHANGELOG.md": "3d67d2f44069f141fb94808396f0a3a3bc42a9c6b5af66fd0e39f2d05f4e7e59",
-    "plugin.json": "939e66bf09f50a525ba8a8f6d78d86b7e429cc9abf2c1678ac24f35ac6170ce7",
+    "module.js.LICENSE.txt": "a38486143894f3983170d896f8ba530930da8ac23d8e377bb4cea077d292099f",
     "img/request.png": "6a5bd6750b9914c8ee327107ccb1cfe68ea717f1655e23e556e8ebb4abd268b7",
     "img/elements.png": "89271ee1e246c51e88fb030cf4a90090bf97585536aeef4e6d99e453ce8ccf3e",
-    "img/panel.png": "7966ac485cf7b6179023aec7569e64cdf2e03b0e1409c9257cdb64eae7869b9c",
     "img/logo.svg": "a4a44b2d994ab911e499a1ee150b254cf34c13829254bd399a3d4bfc742e2415",
-    "module.js.LICENSE.txt": "a38486143894f3983170d896f8ba530930da8ac23d8e377bb4cea077d292099f"
+    "img/panel.png": "7966ac485cf7b6179023aec7569e64cdf2e03b0e1409c9257cdb64eae7869b9c",
+    "CHANGELOG.md": "4a1d530b69b15962fcee13985f15a0000ab59453a1f8662283f09b1204acd4e7",
+    "module.js": "1fca550c1e8dfcbeaf9210429775d401c13ba63c74e1c9540ebfeb31b3f1d9b8",
+    "LICENSE": "122f29b3b6f2a0d5ea3cd3d770c297b9582e03bc1aaaf0f3e0bd751011b8aefe",
+    "plugin.json": "24f6caaea53bdce43d1b425dce29d8ecb0f84e2817a058502f335e6bc9269db6",
+    "module.js.map": "8ab28d2d0ca8919916c4b875c468412f557b4c436357184acf28fa8bb0fcee48"
   }
 }
 -----BEGIN PGP SIGNATURE-----
 Version: OpenPGP.js v4.10.11
 Comment: https://openpgpjs.org
 
-wrkEARMKAAYFAmXxFBgAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
-cIhm50UZAgkBYbZonYQ4cGhWb68shEiOh7O5RWAggAcI7YSaw15RUVSO+JXt
-EZgYBFj2yp0g3I+NNKXX4WWeLgmebvI69uetcewCCQE5G8qvMK0n3CwpyuLD
-pg6OetoYHBZQ//dYLN43BQ60poD3PaUCDsjaC1xnc/GygH/SmUBRdraQVE5O
-OELtwHV87Q==
-=6uTP
+wrkEARMKAAYFAmZZMYQAIQkQfk0ManCIZucWIQTzOyW2kQdOhGNlcPN+TQxq
+cIhm5+86AgkA6oEUpYYh1KwB9d16CBZJt3habmve2sZwawiEg2eQkWbjUjiE
+xp6Uu+nY8UNQqDEI88FHRzJrHFpzuyCNAOrSATgCCQHLrhnT/HaAkKPIsmb8
+W9Vd8x1xtlAm3TEfFxjAkwm3syl1J5GjcJiMUHV3BYtdf+lROhevMz/IMsqt
+Sg3eYGZZng==
+=E3/M
 -----END PGP SIGNATURE-----

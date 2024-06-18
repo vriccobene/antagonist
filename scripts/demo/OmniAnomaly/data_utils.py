@@ -81,18 +81,18 @@ def store_symptoms_to_network_anomalies(symptoms_to_network_anomalies_json):
     return response.json()
 
 
-def store_data_to_db(data):
-    store_grafana_annotations(data['grafana_annotations'])
-    network_anomaly_ids_to_replace = store_network_anomalies(data['network_anomalies'])
-    symptom_id_to_replace = store_symptoms(data['symptoms'])
+def store_data_to_db(data_to_store):
+    # store_grafana_annotations(data_to_store['grafana_annotations'])
+    network_anomaly_ids_to_replace = store_network_anomalies(data_to_store['network_anomalies'])
+    symptom_id_to_replace = store_symptoms(data_to_store['symptoms'])
 
-    for item in data['symptoms-to-network-anomalies']:
+    for item in data_to_store['symptoms-to-network-anomalies']:
         if item['incident-id'] in network_anomaly_ids_to_replace.keys():
             item['incident-id'] = network_anomaly_ids_to_replace[item['incident-id']]
         if item['symptom-id'] in symptom_id_to_replace.keys():
             item['symptom-id'] = symptom_id_to_replace[item['symptom-id']]
 
-    store_symptoms_to_network_anomalies(data['symptoms-to-network-anomalies'])
+    store_symptoms_to_network_anomalies(data_to_store['symptoms-to-network-anomalies'])
 
 
 def main():
