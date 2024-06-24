@@ -73,6 +73,9 @@ services:
 
   antagonist-core:
     image: antagonist:latest
+    build:
+      context: ../antagonist/
+      dockerfile: Dockerfile
     container_name: antagonist-core
     restart: always
     ports:
@@ -86,6 +89,9 @@ services:
 
   antagonist-frontend:
     image: antagonist-frontend:latest
+    build:
+      context: ../frontend/
+      dockerfile: Dockerfile
     container_name: antagonist-frontend
     restart: always
     depends_on:
@@ -98,6 +104,9 @@ services:
   
   dasboard-manager:
     image: dashboard-manager:latest
+    build:
+      context: ../dashboard_manager/
+      dockerfile: Dockerfile
     container_name: dashboard-manager
     restart: always
     depends_on:
