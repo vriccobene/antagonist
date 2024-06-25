@@ -12,8 +12,54 @@ The dataset is organized into three groups, with each group containing multiple 
 import os
 import datetime
 import pandas as pd
+import influxdb_client
 
 from typing import List, Union
+
+
+# InfluxDB configuration
+INFLUX_ORG = "ietf"
+INFLUX_PORT = "8086"
+INFLUX_HOST = "localhost"
+INFLUX_BUCKET = "anomaly_detection"
+INFLUX_TOKEN = "qT83QJVt1wENkP3s8Lfgyw0A5mGMQ5NFDApl5xOYKC3B_7tM5eVm8G0cnUsCzEG_8J3YEk0o2i6oH6L9masMxA=="
+
+data_structure = {
+    "Group 1": [
+        "machine-1-1.txt",
+        "machine-1-2.txt",
+        "machine-1-3.txt",
+        "machine-1-4.txt",
+        "machine-1-5.txt",
+        "machine-1-6.txt",
+        "machine-1-7.txt",
+        "machine-1-8.txt",
+    ],
+    "Group 2": [
+        "machine-2-1.txt",
+        "machine-2-2.txt",
+        "machine-2-3.txt",
+        "machine-2-4.txt",
+        "machine-2-5.txt",
+        "machine-2-6.txt",
+        "machine-2-7.txt",
+        "machine-2-8.txt",
+        "machine-2-9.txt",
+    ],
+    "Group 3": [
+        "machine-3-1.txt",
+        "machine-3-2.txt",
+        "machine-3-3.txt",
+        "machine-3-4.txt",
+        "machine-3-5.txt",
+        "machine-3-6.txt",
+        "machine-3-7.txt",
+        "machine-3-8.txt",
+        "machine-3-9.txt",
+        "machine-3-10.txt",
+        "machine-3-11.txt",
+    ],
+}
 
 
 class SMD:
@@ -38,42 +84,7 @@ class SMD:
             self.dataset_folder, "interpretation_label"
         )
 
-        self.data_structure = {
-            "Group 1": [
-                "machine-1-1.txt",
-                "machine-1-2.txt",
-                "machine-1-3.txt",
-                "machine-1-4.txt",
-                "machine-1-5.txt",
-                "machine-1-6.txt",
-                "machine-1-7.txt",
-                "machine-1-8.txt",
-            ],
-            "Group 2": [
-                "machine-2-1.txt",
-                "machine-2-2.txt",
-                "machine-2-3.txt",
-                "machine-2-4.txt",
-                "machine-2-5.txt",
-                "machine-2-6.txt",
-                "machine-2-7.txt",
-                "machine-2-8.txt",
-                "machine-2-9.txt",
-            ],
-            "Group 3": [
-                "machine-3-1.txt",
-                "machine-3-2.txt",
-                "machine-3-3.txt",
-                "machine-3-4.txt",
-                "machine-3-5.txt",
-                "machine-3-6.txt",
-                "machine-3-7.txt",
-                "machine-3-8.txt",
-                "machine-3-9.txt",
-                "machine-3-10.txt",
-                "machine-3-11.txt",
-            ],
-        }
+        self.data_structure = data_structure
 
     def get_metric_names(self):
         """
@@ -213,19 +224,137 @@ class SMD:
         )
 
         # Add timestamps
-        timestamps = pd.date_range(
-            start=datetime.datetime(2020, 1, 1, 0, 0, 0),
-            freq="min",
-            periods=inter_labels['end'].max()+1,
-            name="timestamp",
-        ).to_frame().reset_index(drop=True)
+        timestamps = (
+            pd.date_range(
+                start=datetime.datetime(2020, 1, 1, 0, 0, 0),
+                freq="min",
+                periods=inter_labels["end"].max() + 1,
+                name="timestamp",
+            )
+            .to_frame()
+            .reset_index(drop=True)
+        )
 
-        inter_labels['start'] = timestamps['timestamp'].iloc[inter_labels['start']].values
-        inter_labels['end'] = timestamps['timestamp'].iloc[inter_labels['end']].values
+        inter_labels["start"] = (
+            timestamps["timestamp"].iloc[inter_labels["start"]].values
+        )
+        inter_labels["end"] = timestamps["timestamp"].iloc[inter_labels["end"]].values
 
         # Convert metrics to array
-        inter_labels['metrics'] = inter_labels['metrics'].str.split(",").apply(
-            lambda x: [int(i) for i in x]
+        inter_labels["metrics"] = (
+            inter_labels["metrics"].str.split(",").apply(lambda x: [int(i) for i in x])
         )
 
         return inter_labels[["start", "end", "metrics"]]
+
+
+class SMDInfluxDB:
+
+    def __init__(
+        self,
+        influx_host: str = INFLUX_HOST,
+        influx_port: str = INFLUX_PORT,
+        influx_org: str = INFLUX_ORG,
+        influx_bucket: str = INFLUX_BUCKET,
+        influx_token: str = INFLUX_TOKEN,
+    ) -> None:
+        self.influx_host = influx_host
+        self.influx_port = influx_port
+        self.influx_org = influx_org
+        self.influx_bucket = influx_bucket
+        self.influx_token = influx_token
+        self.data_structure = data_structure
+
+    def get_metric_names(self):
+        """
+        Returns a list of metric names in the dataset.
+
+        Returns:
+            list: A list of metric names.
+        """
+        return [
+            "cpu_r",
+            "load_1",
+            "load_5",
+            "load_15",
+            "mem_shmem",
+            "mem_u",
+            "mem_u_e",
+            "total_mem",
+            "disk_q",
+            "disk_r",
+            "disk_rb",
+            "disk_svc",
+            "disk_u",
+            "disk_w",
+            "disk_wa",
+            "disk_wb",
+            "si",
+            "so",
+            "eth1_fi",
+            "eth1_fo",
+            "eth1_pi",
+            "eth1_po",
+            "tcp_tw",
+            "tcp_use",
+            "active_opens",
+            "curr_estab",
+            "in_errs",
+            "in_segs",
+            "listen_overflows",
+            "out_rsts",
+            "out_segs",
+            "passive_opens",
+            "retransegs",
+            "tcp_timeouts",
+            "udp_in_dg",
+            "udp_out_dg",
+            "udp_rcv_buf_errs",
+            "udp_snd_buf_errs",
+        ]
+
+    def read_dataset(
+        self,
+        start_date:datetime.datetime,
+        end_date:datetime.datetime,
+        metric_name: Union[List[str], str] = None,
+        machine_name: Union[List[str], str] = None,
+        retrieve_labels: bool = False,
+    ) -> List[pd.DataFrame]:
+        
+        client = influxdb_client.InfluxDBClient(url=f'http://{INFLUX_HOST}:{INFLUX_PORT}', token=INFLUX_TOKEN)
+        query_api = client.query_api()
+
+        if metric_name:
+            metric_name = metric_name if isinstance(metric_name, list) else [metric_name]
+        if machine_name:
+            machine_name = machine_name if isinstance(machine_name, list) else [machine_name]
+        query = f'from(bucket: "anomaly_detection") |> range(start: {start_date.isoformat()}Z, stop: {end_date.isoformat()}Z)' + (
+               (' |> filter(fn:(r) => '+ " or ".join([(f"r._field == \"" + str(k)+'"') for k in metric_name]) + ")" )if metric_name else ""
+        )+ (
+              ( ' |> filter(fn:(r) => '+ " or ".join([(f"r.machine == \"" + str(k)+'"') for k in machine_name]) + ")" )if machine_name else ""
+        )
+
+        print(query)
+        result = query_api.query(org=self.influx_org, query=query)
+
+        results = []
+        for table in result:
+            for record in table.records:
+                results.append(record.values)
+
+        df = pd.DataFrame.from_records(results)
+        print(df.head())
+        print(df.columns)
+
+        return None, None
+
+
+if __name__ == "__main__":
+    db = SMDInfluxDB()
+    db.read_dataset(
+        start_date = datetime.datetime(2024,6,13,0,0,0),
+        end_date = datetime.datetime(2024,6,14,12,0,0),
+        machine_name = ["machine-1-1","machine-1-2"],
+        metric_name=['cpu_r','mem_u']
+    )
