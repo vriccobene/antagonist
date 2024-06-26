@@ -20,6 +20,31 @@ logging.basicConfig(
 
 
 class AENetworkAnomaly:
+    """
+    A class for detecting anomalies in time series data using an Autoencoder Neural Network.
+
+    Attributes:
+        n_inputs (int): The number of input features.
+        layer_sizes (List[int]): A list of integers representing the sizes of the hidden layers in the autoencoder.
+        lr (float): The learning rate for training the autoencoder.
+        batch_size (int): The batch size for training the autoencoder.
+        epochs (int): The number of epochs for training the autoencoder.
+        validation_split (float): The fraction of the training data to be used for validation.
+        early_stopping (bool): Whether to use early stopping during training.
+        patience (int): The number of epochs to wait before early stopping when the validation loss stops improving.
+        Q (float): The quantile value used to calculate the anomaly threshold.
+        ae (Vanilla_AE): The trained autoencoder model.
+        scaler (StandardScaler): The scaler used to normalize the input data.
+        threshold (pd.Series): The anomaly threshold for each input feature.
+
+    Methods:
+        fit(X): Trains the autoencoder model on the input data X.
+        is_trained(): Checks if the autoencoder model has been trained.
+        predict(X, aggregate=False): Predicts anomalies in the input data X.
+        parse_predictions(df_data, predictions): Parses the anomaly predictions into intervals for each input feature.
+        store(model_folder): Stores the trained model, scaler, threshold, and parameters in the specified folder.
+        load(model_folder): Loads a previously trained model from the specified folder.
+    """
 
     def __init__(
         self,
@@ -49,6 +74,12 @@ class AENetworkAnomaly:
         self.threshold = None
 
     def fit(self, X):
+        """
+        Trains the autoencoder model on the input data X.
+
+        Args:
+            X (pd.DataFrame): The input data for training.
+        """
 
         self.ae = Vanilla_AE(n_inputs=self.n_inputs, layer_sizes=self.layer_sizes)
 
@@ -75,9 +106,26 @@ class AENetworkAnomaly:
         self.threshold = residuals_train.quantile(self.Q, axis=0) * 5 / 2
 
     def is_trained(self):
+        """
+        Checks if the autoencoder model has been trained.
+
+        Returns:
+            bool: True if the model has been trained, False otherwise.
+        """
         return self.ae is not None
 
     def predict(self, X, aggregate=False):
+        """
+        Predicts anomalies in the input data X.
+
+        Args:
+            X (pd.DataFrame): The input data for prediction.
+            aggregate (bool): If True, returns a single boolean value indicating whether any anomaly is present.
+                              If False, returns a boolean array indicating anomalies for each input sample.
+
+        Returns:
+            np.ndarray or bool: A boolean array or a single boolean value indicating anomalies.
+        """
 
         if self.is_trained():
             X_hat = self.scaler.transform(X)
@@ -92,6 +140,16 @@ class AENetworkAnomaly:
             return None
 
     def parse_predictions(self, df_data, predictions):
+        """
+        Parses the anomaly predictions into intervals for each input feature.
+
+        Args:
+            df_data (pd.DataFrame): The input data used for prediction.
+            predictions (np.ndarray): The boolean array of anomaly predictions.
+
+        Returns:
+            dict: A dictionary mapping feature indices to a list of anomaly intervals (start, end) timestamps.
+        """
         intervals = find_consecutive_true_np(predictions)
         symptoms_per_metric = defaultdict(list)
 
@@ -107,7 +165,12 @@ class AENetworkAnomaly:
         return symptoms_per_metric
 
     def store(self, model_folder):
-        """Stores the torch model, the scaler, the parameters and the threshold into the input folder."""
+        """
+        Stores the trained model, scaler, threshold, and parameters in the specified folder.
+
+        Args:
+            model_folder (str): The path to the folder where the model and related files will be stored.
+        """
         if self.is_trained():
             os.makedirs(model_folder, exist_ok=True)
             torch.save(self.ae.state_dict(), os.path.join(model_folder, "ae_model.pt"))
@@ -122,7 +185,15 @@ class AENetworkAnomaly:
 
     @staticmethod
     def load(model_folder):
-        """Loads the torch model, the scaler, the parameters and the threshold from the input folder."""
+        """
+        Loads a previously trained model from the specified folder.
+
+        Args:
+            model_folder (str): The path to the folder containing the model and related files.
+
+        Returns:
+            AENetworkAnomaly: The loaded AENetworkAnomaly instance.
+        """
         ae_state = torch.load(os.path.join(model_folder, "ae_model.pt"))
         with open(os.path.join(model_folder, "scaler.pkl"), "rb") as f:
             scaler = pickle.load(f)
