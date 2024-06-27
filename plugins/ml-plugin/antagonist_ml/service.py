@@ -1,8 +1,9 @@
 import uuid
-import datetime
+import time
 import json
+import datetime
+import requests
 from typing import Dict, List, Union
-
 
 def get_network_anomaly_labels(
     service_id: str,
@@ -41,12 +42,11 @@ def get_network_symptoms_labels(
 
 
 def store_network_anomalies_labels(
+    antagonist_host:str,
     author_name: str,
     author_type: str,
     author_version: int,
     description: str,
-    start: int,
-    end: int,
     state: str = "incident-potential",
     version: int = 1,
 ) -> str:
@@ -54,12 +54,11 @@ def store_network_anomalies_labels(
     Store network anomaly labels in a data structure.
 
     Args:
+        antagonist_host (str): The hostname or IP address of the Antagonist service.
         author_name (str): The name of the author who created the label.
         author_type (str): The type of the author, either "algorithm" or "human".
         author_version (int): The version of the author.
         description (str): A description of the network anomaly.
-        start (int): The start timestamp of the network anomaly.
-        end (int): The end timestamp of the network anomaly.
         state (str, optional): The state of the network anomaly. Defaults to "incident-potential".
         version (int, optional): The version of the network anomaly label. Defaults to 1.
 
@@ -88,23 +87,24 @@ def store_network_anomalies_labels(
             "version": author_version,
         },
         "description": description,
-        "start": datetime.datetime.fromtimestamp(start).strftime("%Y-%m-%dT%H:%M:%S"),
-        "end": datetime.datetime.fromtimestamp(end).strftime("%Y-%m-%dT%H:%M:%S"),
-        "id": network_anomaly_uuid,
         "state": state,
-        "version": version,
+        "version": version
     }
 
-    print(json.dumps(net_inc))
+    response = requests.post(f"http://{antagonist_host}/api/rest/v1/incident", json=net_inc)
+    response.raise_for_status()
+    network_anomaly_uuid = response.json()
 
     return network_anomaly_uuid
 
 
 def store_network_symptom_labels(
+    antagonist_host:str,
     author_name: str,
     author_type: str,
     author_version: int,
     confidence: float,
+    concern_score: float,
     description: str,
     start: int,
     end: int,
@@ -116,10 +116,10 @@ def store_network_symptom_labels(
     Store network symptom labels in a data structure.
 
     Args:
+        antagonist_host (str): The hostname or IP address of the Antagonist service.
         author_name (str): The name of the author who created the label.
         author_type (str): The type of the author, either "algorithm" or "human".
-        author_version (int): The version of the author.
-        confidence (float): The confidence score of the network symptom label.
+        concern_score (float): The concern score of the network symptom.
         description (str): A description of the network symptom.
         start (int): The start timestamp of the network symptom.
         end (int): The end timestamp of the network symptom.
@@ -134,24 +134,28 @@ def store_network_symptom_labels(
     assert author_version > 0
     assert version > 0
 
-    symptom_uuid = str(uuid.uuid4())
     event_uuid = str(uuid.uuid4())
     net_sym = {
-        "confidence-score": confidence,
-        "description": description,
         "start-time": datetime.datetime.fromtimestamp(start).strftime(
             "%Y-%m-%dT%H:%M:%S"
         ),
         "end-time": datetime.datetime.fromtimestamp(end).strftime("%Y-%m-%dT%H:%M:%S"),
         "event-id": event_uuid,
-        "id": symptom_uuid,
+        'concern-score': concern_score, 
+        "confidence-score": confidence,
+        "description": description,
         "source-name": f"{author_name}_{author_version}",
         "source-type": author_type,
         "tags": tags,
+        'action': 'drop', 'cause': 'x', 'reason': '{metric}', 'plane': 'forwarding', 'pattern': '', 
     }
 
-    print(json.dumps(net_sym))
+    response = requests.post(f"http://{antagonist_host}/api/rest/v1/symptom", json=net_sym)
+    response.raise_for_status()
+    symptom_uuid = response.json()
 
     if network_anomaly_uuid:
         sym_to_net = {"symptom-id": symptom_uuid, "incident-id": network_anomaly_uuid}
-        print(json.dumps(sym_to_net))
+        response = requests.post(
+                f"http://{antagonist_host}/api/rest/v1/incident/symptom", json=sym_to_net)
+        response.raise_for_status()
