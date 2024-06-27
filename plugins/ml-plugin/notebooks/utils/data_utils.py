@@ -315,27 +315,52 @@ class SMDInfluxDB:
 
     def read_dataset(
         self,
-        start_date:datetime.datetime,
-        end_date:datetime.datetime,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
         metric_name: Union[List[str], str] = None,
-        machine_name: Union[List[str], str] = None,
-        retrieve_labels: bool = False,
+        machine_name: Union[List[str], str] = None
     ) -> List[pd.DataFrame]:
-        
-        client = influxdb_client.InfluxDBClient(url=f'http://{INFLUX_HOST}:{INFLUX_PORT}', token=INFLUX_TOKEN)
+
+        client = influxdb_client.InfluxDBClient(
+            url=f"http://{INFLUX_HOST}:{INFLUX_PORT}", token=INFLUX_TOKEN
+        )
         query_api = client.query_api()
 
         if metric_name:
-            metric_name = metric_name if isinstance(metric_name, list) else [metric_name]
+            metric_name = (
+                metric_name if isinstance(metric_name, list) else [metric_name]
+            )
         if machine_name:
-            machine_name = machine_name if isinstance(machine_name, list) else [machine_name]
-        query = f'from(bucket: "anomaly_detection") |> range(start: {start_date.isoformat()}Z, stop: {end_date.isoformat()}Z)' + (
-               (' |> filter(fn:(r) => '+ " or ".join([(f"r._field == \"" + str(k)+'"') for k in metric_name]) + ")" )if metric_name else ""
-        )+ (
-              ( ' |> filter(fn:(r) => '+ " or ".join([(f"r.machine == \"" + str(k)+'"') for k in machine_name]) + ")" )if machine_name else ""
+            machine_name = (
+                machine_name if isinstance(machine_name, list) else [machine_name]
+            )
+        query = (
+            f'from(bucket: "anomaly_detection") |> range(start: {start_date.isoformat()}Z, stop: {end_date.isoformat()}Z)'
+            + (
+                (
+                    " |> filter(fn:(r) => "
+                    + " or ".join(
+                        [(f'r._field == "' + str(k) + '"') for k in metric_name]
+                    )
+                    + ")"
+                )
+                if metric_name
+                else ""
+            )
+            + (
+                (
+                    " |> filter(fn:(r) => "
+                    + " or ".join(
+                        [(f'r.machine == "' + str(k) + '"') for k in machine_name]
+                    )
+                    + ")"
+                )
+                if machine_name
+                else ""
+            )
         )
 
-        print(query)
+        #print(query)
         result = query_api.query(org=self.influx_org, query=query)
 
         results = []
@@ -344,17 +369,28 @@ class SMDInfluxDB:
                 results.append(record.values)
 
         df = pd.DataFrame.from_records(results)
-        print(df.head())
-        print(df.columns)
+        retrieve = []
+        files = []
+        for group, machine in (
+            df[["group", "machine"]].drop_duplicates().values.tolist()
+        ):
+            df_tmp = df[(df["group"] == group) & (df["machine"] == machine)]
+            retrieve.append(
+                df_tmp[["_time", "_value", "_field"]]
+                .pivot(columns="_field", values="_value", index="_time")
+                .reset_index(names='timestamp')
+            )
+            files.append(machine + ".txt")
 
-        return None, None
+        return retrieve, files
 
 
 if __name__ == "__main__":
     db = SMDInfluxDB()
     db.read_dataset(
-        start_date = datetime.datetime(2024,6,13,0,0,0),
-        end_date = datetime.datetime(2024,6,14,12,0,0),
-        machine_name = ["machine-1-1","machine-1-2"],
-        metric_name=['cpu_r','mem_u']
+        start_date=datetime.datetime(2024, 6, 13, 0, 0, 0),
+        end_date=datetime.datetime(2024, 6, 14, 12, 0, 0),
+        machine_name="machine-1-1",
     )
+
+    
