@@ -1,1 +1,1 @@
-from .data_utils import SMD
+from .data_utils import SMD, SMDInfluxDB
