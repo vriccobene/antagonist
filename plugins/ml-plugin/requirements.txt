@@ -1,0 +1,6 @@
+torch==2.2.1
+scikit-learn
+pandas
+plotly
+plotly-resampler
+ipywidgets>=7.0.0
