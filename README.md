@@ -57,8 +57,10 @@ They can be imported in Grafana, following the standard import procedure.
 
  ## Where to get the data?
  For the initial demo we are taking some opensource data from the following repository:
- https://github.com/NetManAIOps/OmniAnomaly.git
+ 
+ Create the directory ./data/OmniAnomaly and inside that directory, run this command
 
+    git clone https://github.com/NetManAIOps/OmniAnomaly.git
 
 
 # Disclaimer
@@ -67,3 +69,11 @@ Authors disclaim any responsibility for harm, loss, or damage resulting from suc
 This includes but is not limited to unlawful activities, data loss, or adverse effects of any kind. 
 Hacking and cybersecurity laws vary by jurisdiction. 
 By engaging with this project, you agree to take full responsibility for your actions.
+
+
+# Important Note
+There are several actions recommended before running this code in production. Some of them are listed below:
+
+- Replace Flask REST with a proper HTTP Server
+- Remove passwords and tokens from the configuration files and fill them with proper mechanisms
+- ...

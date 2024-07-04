@@ -127,4 +127,3 @@ volumes:
   influx:
   postgres:
   grafana:
-
