@@ -4,3 +4,5 @@ pandas
 plotly
 plotly-resampler
 ipywidgets>=7.0.0
+influxdb_client
+numpy==1.26.4

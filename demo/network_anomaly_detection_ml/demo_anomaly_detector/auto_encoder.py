@@ -160,4 +160,6 @@ class Vanilla_AE(nn.Module):
         self.eval()
         with torch.no_grad():
             outputs = self(data)
-        return outputs.numpy()
+            print(type(outputs))
+            return outputs.numpy()
+        return None

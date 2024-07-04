@@ -76,22 +76,26 @@ class GrafanaDashboardGenerator():
     def create_new_dashboard(self, dashboard_id, dashboard_name, metric_name, annotation_tags, filters):
         dashboard_name = dashboard_name or f"Dashboard {dashboard_id}"
         path = pathlib.Path(__file__).parent.resolve()
-        with open(f"{path}/Symptom Tagging-20240611.json", "r") as dashboard_file:
+        with open(f"{path}/SymptomTagging-20240611.json", "r") as dashboard_file:
             f_content = dashboard_file.read()
+            logger.info(f"Variables: {dashboard_id}, {dashboard_name}, {metric_name}, {annotation_tags}, {filters}")
             f_content = f_content.replace("#DASHBOARD_ID_HERE", str(dashboard_id))
             f_content = f_content.replace("#DASHBOARD_NAME_HERE", str(dashboard_name))
             f_content = f_content.replace("#METRIC_NAME_HERE", str(metric_name))
             # f_content = f_content.replace("#ANNOTATION_TAGS_HERE", str(annotation_tags))
-            f_content = f_content.replace("#ANNOTATION_TAGS_HERE", str(annotation_tags).replace('"', '').replace("'", '"'))
+            f_content = f_content.replace('#ANNOTATION_TAGS_HERE', str(annotation_tags).replace('"', '').replace("'", '"'))
             
             filtering_expressions = ""
             for key, value in filters.items():
                 filtering_expressions += f'|> filter(fn: (r) => r[\\\"{key}\\\"] == \\\"{value}\\\")\\r\\n '
             f_content = f_content.replace("#FILTERING_EXPRESSIONS_HERE", filtering_expressions)
+            logger.info(f"Filtering Expressions: {filtering_expressions}")
         try:
             dashboard_template = json.loads(f_content)
         except JSONDecodeError as e:
-            print(f"Error parsing dashboard template: {e}")
+            logger.exception(f"Error parsing dashboard template: {e}")
+            logger.exception(f"Dashboard template: {f_content}")
+        
         self._grafana_dashboard_api.create(dashboard_template)
 
 
