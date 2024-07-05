@@ -1,10 +1,12 @@
+import copy
 import requests
 import logging
+from domain import network_anomaly as na, symptom_to_network_anomaly as stna
 from config import env
 from urllib.parse import urlparse, parse_qs
 from flask import Flask, jsonify, request
 from database import postgresql
-from domain import incident as inc, symptom as sym, symptom_to_incident as sti
+from domain import symptom as sym
 
 logging.basicConfig(level=env.LOGGING_LEVEL)
 logger = logging.getLogger(__name__)
@@ -25,6 +27,7 @@ def symptom():
         try: 
             symptom_obj = sym.Symptom(symptom_data)
         except ValueError as e:
+            logger.exception(f"Error while creating symptom: {e}")
             return jsonify({"error": str(e)}), 400
         
         # Store the symptom in the database
@@ -35,15 +38,16 @@ def symptom():
             logger.info(f"Dashboard creation response: {res}")
             database.add_tag_to_symptom(symptom_id, "url", res)
         except Exception as e:
+            logger.exception(f"Error while storing symptom: {e}")
             return jsonify({"error": str(e)}), 500
         return jsonify(symptom_id), 200
     if 'GET' == request.method:
         symptom_id = request.args.get('id', None)
-        incident_id = request.args.get('incident-id', None)
+        network_anomaly_id = request.args.get('network-anomaly-id', None)
         start_time = request.args.get('start-time', None)
         end_time = request.args.get('end-time', None)
         db_res = database.get_symptom(
-            symptom_id=symptom_id, incident_id=incident_id, 
+            symptom_id=symptom_id, network_anomaly_id=network_anomaly_id, 
             start_time=start_time, end_time=end_time) 
         
         if not symptom_id:
@@ -54,44 +58,46 @@ def symptom():
         return jsonify(dict(db_res)), 200
 
 
-@app.route('/api/rest/v1/incident', methods=['POST', 'GET'])
-def incident():
+@app.route('/api/rest/v1/network_anomaly', methods=['POST', 'GET'])
+def network_anomaly():
     if 'POST' == request.method:
-        incident_data = request.get_json()
-        logger.info("Received new incident POST request")
-        logger.debug(f"Incident Data: {incident_data}")
+        network_anomaly_data = request.get_json()
+        logger.info("Received new network anomaly POST request")
+        logger.debug(f"Network anomaly Data: {network_anomaly_data}")
         try: 
-            incident_obj = inc.Incident(incident_data)
+            network_anomaly_obj = na.NetworkAnomaly(network_anomaly_data)
         except ValueError as e:
+            logger.exception(f"Error while creating network anomaly: {e}")
             return jsonify({"error": str(e)}), 400
         
-        # Store the incident in the database
+        # Store the network anomaly in the database
         try:
-            incident_id = database.store_incident(incident_obj)
+            network_anomaly_id = database.store_network_anomaly(network_anomaly_obj)
         except Exception as e:
+            logger.exception(f"Error while storing network anomaly: {e}")
             return jsonify({"error": str(e)}), 500
-        return jsonify(incident_id), 200
+        return jsonify(network_anomaly_id), 200
 
     if 'GET' == request.method:
-        incident_id = request.args.get('id', None)
-        db_res = database.get_incident(incident_id) or []
-        if not incident_id:
+        network_anomaly_id = request.args.get('id', None)
+        db_res = database.get_network_anomaly(network_anomaly_id) or []
+        if not network_anomaly_id:
             res = [dict(entry) for entry in db_res]
             return jsonify(res), 200
         return jsonify(dict(db_res)), 200
 
 
-@app.route('/api/rest/v1/incident/symptom', methods=['POST', 'GET'])
-def symptom_to_incident():
+@app.route('/api/rest/v1/network_anomaly/symptom', methods=['POST', 'GET'])
+def symptom_to_network_anomaly():
     """
-    Link a symptom to an incident
+    Link a symptom to an network anomaly
     """
     def _convert_to_dict(val):
-        {"symptom-id": val.symptom_id, "incident-id": val.get('incident-id')}
+        {"symptom-id": val.symptom_id, "network-anomaly-id": val.get('network-anomaly-id')}
     
     if 'POST' == request.method:
         sym_to_inc_data = request.get_json()
-        logger.debug("Received new symptom to incident POST request")
+        logger.debug("Received new symptom to network anomaly POST request")
         logger.debug(f"Input Data: {sym_to_inc_data}")
         
         if not isinstance(sym_to_inc_data, list):
@@ -100,53 +106,27 @@ def symptom_to_incident():
         res = list()
         for obj in sym_to_inc_data:
             try:
-                sym_to_inc_obj = sti.SymptomToIncident(obj)
+                sym_to_inc_obj = stna.SymptomToNetworkAnomaly(obj)
             except ValueError as e:
+                logger.exception(f"Error while creating symptom to network anomaly: {e}")
                 res.append({"error": str(e)})
             
-            # Store the incident in the database
+            # Store the network anomaly in the database
             try:
-                res.append(database.store_symptom_incident_relation(sym_to_inc_obj))
+                res.append(database.store_symptom_network_anomaly_relation(sym_to_inc_obj))
             except Exception as e:
+                logger.exception(f"Error while storing symptom to network anomaly: {e}")
                 res.append({"error": str(e)})
         return jsonify(res), 200
 
     if 'GET' == request.method:
-        incident_id = request.args.get('incident-id', None)
-        db_res = database.get_symptom_to_incident(incident_id)
-        if not incident_id:
+        network_anomaly_id = request.args.get('network-anomaly-id', None)
+        db_res = database.get_symptom_to_network_anomaly(network_anomaly_id)
+        if not network_anomaly_id:
             return [], 200
         res = [dict(entry) for entry in db_res]
         return jsonify(res), 200
-
-
-# @app.route('/api/rest/v1/incident_list', methods=['GET'])
-# def incident_list():
-#     parse_result = urlparse(request.url)
-#     dict_result = parse_qs(parse_result.query)
-#     start_time = dict_result.get('start_time', [None])[0]
-#     end_time = dict_result.get('end_time', [None])[0]
-
-#     # Get all annotations from Grafana
-#     annotations = grafana_annotations.get(start_time=start_time, end_time=end_time)
-#     incidents = [
-#         incident for incident in annotations 
-#         if 'Incident' in incident.get('tags')]
-#     res = list()
-#     for incident in incidents:
-#         try:
-#             inc_description = json.loads(incident.get('text', ""))['description']
-#         except json.decoder.JSONDecodeError:
-#             inc_description = incident.get('text', "")
-#         res.append({
-#             "incident-id": incident.get('id'), 
-#             "description": inc_description,
-#             "from": incident.get('time'),
-#             "to": incident.get('timeEnd')
-#             })
-#     print(res)
-#     return jsonify(res), 200
-
+    
 
 @app.after_request
 def allow_foreign_origin(response):
@@ -175,6 +155,7 @@ def initialize_database():
 
 def _prepare_dashboard_data(symptom):
     res = dict(symptom)
+    res.pop('annotator')
     res['id'] = str(res['id'])
 
     res['event-id'] = str(res['event-id'])
@@ -197,9 +178,16 @@ def _prepare_dashboard_data(symptom):
 def create_dashboard_for_symptom(symptom):
     logger.info("Creating a new dashboard")
     try:
+        symptom_local = copy.deepcopy(symptom)
+        symptom_local.tags['annotator-name'] = symptom_local.annotator.name
+        symptom_local.tags['annotator-type'] = symptom_local.annotator.annotator_type
+    except Exception as e:
+        logger.error(f"Error while preparing dashboard data: {e}")
+        logger.exception(f"{e}")
+    try:
         respose = requests.post(
             f"http://{env.DASHBOARD_MANAGER_HOST}:{env.DASHBOARD_MANAGER_PORT}/api/rest/v1/dashboard", 
-            json=_prepare_dashboard_data(symptom))
+            json=_prepare_dashboard_data(symptom_local))
     except Exception as e:
         logger.error(f"Error while creating dashboard: {e}")
         return ""

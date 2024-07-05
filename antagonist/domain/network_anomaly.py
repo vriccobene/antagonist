@@ -1,14 +1,15 @@
+from domain import annotator
 from domain import check_data_types
-from domain import author, entity
+from domain import entity
 import logging
 logger = logging.getLogger(__name__)
 
 
-class Incident(entity.Entity):
+class NetworkAnomaly(entity.Entity):
 
     data_model = {
         "description": str, 
-        "author": author.Author, 
+        "annotator": annotator.Annotator, 
         "version": int, 
         "state": str
     }
@@ -19,7 +20,7 @@ class Incident(entity.Entity):
         """
         yield "id", self.id
         for key in self.data_model.keys():
-            if key == "author":
-                yield key, dict(self.author)
+            if key == "annotator":
+                yield key, dict(self.annotator)
                 continue
             yield key, getattr(self, key)

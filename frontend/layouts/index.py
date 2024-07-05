@@ -6,6 +6,7 @@ import app as service
 import logging
 from datetime import date
 
+
 logger = logging.getLogger(__name__)
 
 layout = html.Div(
@@ -196,10 +197,10 @@ layout = html.Div(
                                                         dbc.InputGroup(
                                                             [
                                                                 dbc.InputGroupText(
-                                                                    "Author Name"
+                                                                    "Annotator Name"
                                                                 ),
                                                                 dbc.Input(
-                                                                    id="network-anomaly-add-new-version-input-auth"
+                                                                    id="network-anomaly-add-new-version-input-annotator"
                                                                 ),
                                                             ],
                                                             className="mb-3",
@@ -437,8 +438,8 @@ layout = html.Div(
                                                                 className="mb-3",
                                                             ),
                                                             html.Div(
-                                                                "Author: Antonio Roberto",
-                                                                id="network-anomaly-compare-author-v1",
+                                                                "Annotator: Vincenzo Riccobene",
+                                                                id="network-anomaly-compare-annotator-v1",
                                                             ),
                                                             html.Div(
                                                                 "State: Forecasted",
@@ -492,8 +493,8 @@ layout = html.Div(
                                                                 className="mb-3",
                                                             ),
                                                             html.Div(
-                                                                "Author: Antonio Roberto",
-                                                                id="network-anomaly-compare-author-v2",
+                                                                "Annotator: Vincenzo Riccobene",
+                                                                id="network-anomaly-compare-annotator-v2",
                                                             ),
                                                             html.Div(
                                                                 "State: Forecasted",
@@ -611,14 +612,14 @@ def network_anomaly_detail_inspect_button_clicked(rows, n_clicks):
     if n_clicks is None or n_clicks == 0:
         return no_update
     
-    incident_id = rows[0].get('ID')
-    symptoms = symptom_api.get_symptoms(subset=False, incident_id=incident_id)
+    network_anomaly_id = rows[0].get('ID')
+    symptoms = symptom_api.get_symptoms(subset=False, network_anomaly_id=network_anomaly_id)
 
     return symptoms
 
 
 @service.app.callback(
-    Output("network-anomaly-add-new-version-input-auth", "value"),
+    Output("network-anomaly-add-new-version-input-annotator", "value"),
     Output("network-anomaly-add-new-version-input-state", "value"),
     Output("new-version-symptom-table-current", "rowData", allow_duplicate=True),
     Output("network-anomaly-tabs", "active_tab", allow_duplicate=True),
@@ -637,12 +638,12 @@ def network_anomaly_detail_inspect_button_add_new_vesion(n_clicks, rows):
     )
     history.sort(key=lambda x: x["Version"])
 
-    incident_id = history[-1].get('ID')
-    symptoms = symptom_api.get_symptoms(subset=False, incident_id=incident_id)
+    network_anomaly_id = history[-1].get('ID')
+    symptoms = symptom_api.get_symptoms(subset=False, network_anomaly_id=network_anomaly_id)
 
 
     return (
-        history[-1]["Author Name"],
+        history[-1]["Annotator Name"],
         history[-1]["State"],
         symptoms,
         "network-anomaly-tabs-new-version",
@@ -671,7 +672,7 @@ def network_anomaly_detail_inspect_button_add_new_vesion(n_clicks):
     Input("network-anomaly-add-new-version-submit", "n_clicks"),
     State("network-anomaly-table", "selectedRows"),
     State("network-anomaly-history-table", "rowData"),
-    State("network-anomaly-add-new-version-input-auth", "value"),
+    State("network-anomaly-add-new-version-input-annotator", "value"),
     State("network-anomaly-add-new-version-input-state", "value"),
     State("new-version-symptom-table-current", "rowData"),
     prevent_initial_call="initial_duplicate",
@@ -684,15 +685,23 @@ def network_anomaly_new_vesion_submit(
         return no_update, no_update
 
     # Get last version
-    history = network_anomaly_api.get_network_anomalies(
-        subset=False, network_anomaly_description=rows[0].get("Description")
-    )
-    history.sort(key=lambda x: x["Version"])
+    try:
+        history = network_anomaly_api.get_network_anomalies(
+            subset=False, network_anomaly_description=rows[0].get("Description")
+        )
+        history.sort(key=lambda x: x["Version"])
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        return no_update, no_update
+    
     out = history[-1]
 
     out["Version"] += 1
-    out["Author Name"] = n_auth
+    out["Annotator Name"] = n_auth
     out["State"] = n_state
+
+    logger.error(f"OUT: {out}")
+    logger.error(f"N_SYMPTOMS: {n_symptoms}")
 
     success = network_anomaly_api.create_new_network_anomaly_version(out["ID"], out, n_symptoms)
 
@@ -794,7 +803,7 @@ def network_anomaly_compare_versions_available(rows):
 
 
 @service.app.callback(
-    Output("network-anomaly-compare-author-v1", "children"),
+    Output("network-anomaly-compare-annotator-v1", "children"),
     Output("network-anomaly-compare-state-v1", "children"),
     Output("compare-symptom-table-v1", "rowData"),
     Input("network-anomaly-table", "selectedRows"),
@@ -802,25 +811,24 @@ def network_anomaly_compare_versions_available(rows):
 )
 def network_anomaly_compare_versions_data_v1(rows, selection):
     if rows is None or len(rows) == 0 or selection is None:
-        return "Author:", "State:", []
+        return "Annotator:", "State:", []
 
     annotation_history = network_anomaly_api.get_network_anomalies(
         subset=False, network_anomaly_description=rows[0].get("Description")
     )
 
     curr_version = [k for k in annotation_history if k["Version"] == int(selection)][0]
-    symptoms = symptom_api.get_symptoms(subset=False, incident_id=curr_version.get('ID'))
-
+    symptoms = symptom_api.get_symptoms(subset=False, network_anomaly_id=curr_version.get('ID'))
 
     return (
-        f"Author: {curr_version['Author Name']}",
+        f"Annotator: {curr_version['Annotator Name']}",
         f"State: {curr_version['State']}",
         symptoms,
     )
 
 
 @service.app.callback(
-    Output("network-anomaly-compare-author-v2", "children"),
+    Output("network-anomaly-compare-annotator-v2", "children"),
     Output("network-anomaly-compare-state-v2", "children"),
     Output("compare-symptom-table-v2", "rowData"),
     Input("network-anomaly-table", "selectedRows"),
@@ -828,17 +836,17 @@ def network_anomaly_compare_versions_data_v1(rows, selection):
 )
 def network_anomaly_compare_versions_data_v2(rows, selection):
     if rows is None or len(rows) == 0 or selection is None:
-        return "Author:", "State:", []
+        return "Annotator:", "State:", []
     
     annotation_history = network_anomaly_api.get_network_anomalies(
         subset=False, network_anomaly_description=rows[0].get("Description")
     )
     curr_version = [k for k in annotation_history if k["Version"] == int(selection)][0]
-    symptoms = symptom_api.get_symptoms(subset=False, incident_id=curr_version.get('ID'))
+    symptoms = symptom_api.get_symptoms(subset=False, network_anomaly_id=curr_version.get('ID'))
 
 
     return (
-        f"Author: {curr_version['Author Name']}",
+        f"Annotator: {curr_version['Annotator Name']}",
         f"State: {curr_version['State']}",
         symptoms,
     )

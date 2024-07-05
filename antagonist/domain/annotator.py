@@ -1,16 +1,16 @@
-import uuid
 from domain import entity
 
-class SymptomToIncident(entity.Entity):
 
+class Annotator(entity.Entity):
     data_model = {
-        "symptom-id": uuid.UUID,
-        "incident-id": uuid.UUID
+        "name": str, 
+        "annotator_type": str, 
     }
 
     def __iter__(self):
         """
         Return an iterator for the object
         """
+        # yield "id", self.id
         for key in self.data_model.keys():
-            yield key, str(getattr(self, key))
+            yield key, getattr(self, key)

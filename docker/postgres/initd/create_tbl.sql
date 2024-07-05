@@ -1,34 +1,34 @@
-DROP TYPE IF EXISTS author_type;
-CREATE TYPE author_type AS ENUM (
+DROP TYPE IF EXISTS annotator_type;
+CREATE TYPE annotator_type AS ENUM (
     'human',
     'algorithm'
 );
 
 -- CREATE DATABASE
-CREATE DATABASE incidents;
-GRANT ALL PRIVILEGES ON DATABASE incidents TO postgres;
+CREATE DATABASE network_anomalies;
+GRANT ALL PRIVILEGES ON DATABASE network_anomalies TO postgres;
 
-\c incidents
+\c network_anomalies
 
 -- CREATE TABLE
--- DROP TABLE IF EXISTS incident;
--- Create the table containing all the incidents
-CREATE TABLE IF NOT EXISTS "incident" (
+-- DROP TABLE IF EXISTS network_anomaly;
+-- Create the table containing all the network_anomalies
+CREATE TABLE IF NOT EXISTS "network_anomaly" (
     id uuid DEFAULT gen_random_uuid() UNIQUE NOT NULL,
     descript VARCHAR(1000),
-    author_id uuid NOT NULL,
+    annotator_id uuid NOT NULL,
     version INTEGER NOT NULL,
     state VARCHAR(100) NOT NULL,
     PRIMARY KEY(id, version, state)
-    -- TODO Add foreing key to author
+    -- TODO Add foreing key to annotator
 );
 
-CREATE TABLE IF NOT EXISTS "author" (
+CREATE TABLE IF NOT EXISTS "annotator" (
     id uuid DEFAULT gen_random_uuid() UNIQUE NOT NULL,
     name VARCHAR(200) NOT NULL,
-    author_type VARCHAR(100) NOT NULL,
+    annotator_type VARCHAR(100) NOT NULL,
     version INTEGER,
-    PRIMARY KEY(name, author_type)
+    PRIMARY KEY(name, annotator_type)
 );
 
 -- CREATE TABLE
@@ -37,10 +37,6 @@ CREATE TABLE IF NOT EXISTS "author" (
 CREATE TABLE IF NOT EXISTS "symptom" (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     event_id uuid,
-    plane VARCHAR(1000),
-    action VARCHAR(1000),
-    cause VARCHAR(1000),
-    reason VARCHAR(1000),
     pattern VARCHAR(1000),
     source_name VARCHAR(1000),
     source_type VARCHAR(1000),
@@ -64,14 +60,14 @@ CREATE TABLE IF NOT EXISTS "tag" (
 
 -- CREATE TABLE
 -- DROP TABLE IF EXISTS contains;
-CREATE TABLE IF NOT EXISTS "incident_contains_symptom" (
-    incident_id uuid NOT NULL,
+CREATE TABLE IF NOT EXISTS "network_anomaly_contains_symptom" (
+    network_anomaly_id uuid NOT NULL,
     symptom_id uuid NOT NULL,
     -- symptom_concern SMALLINT,
-    PRIMARY KEY(incident_id, symptom_id),
-    CONSTRAINT incident
-      FOREIGN KEY(incident_id) 
-	  REFERENCES incident(id),
+    PRIMARY KEY(network_anomaly_id, symptom_id),
+    CONSTRAINT network_anomaly
+      FOREIGN KEY(network_anomaly_id) 
+	  REFERENCES network_anomaly(id),
     CONSTRAINT symptom
       FOREIGN KEY(symptom_id) 
 	  REFERENCES symptom(id)
@@ -92,6 +88,6 @@ CREATE TABLE IF NOT EXISTS "incident_contains_symptom" (
 -- );
 
 CREATE USER antagonist WITH ENCRYPTED PASSWORD 'antagonist-password';
-GRANT ALL PRIVILEGES ON DATABASE incidents TO antagonist;
+GRANT ALL PRIVILEGES ON DATABASE network_anomalies TO antagonist;
 GRANT USAGE ON SCHEMA public TO antagonist;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO antagonist;

@@ -1,14 +1,13 @@
-# import torch
-# import random
-# import numpy as np
-# import pandas as pd
+import torch
+import random
+import numpy as np
+import pandas as pd
 
-
-# # Set the seed for reproduceabilty
-# torch.manual_seed(0)
-# torch.use_deterministic_algorithms(True)
-# random.seed(0)
-# np.random.seed(0)
+# Set the seed for reproduceabilty
+torch.manual_seed(0)
+torch.use_deterministic_algorithms(True)
+random.seed(0)
+np.random.seed(0)
 
 
 # import datetime
@@ -52,7 +51,7 @@ class DemoAnomalyDetector:
     def get_model_name(self) -> str:
         return self._model_name
     
-    def delete() -> None:
+    def delete(self) -> None:
         if self._model_name and os.path.exists(self._model_name):
             os.remove(self._model_name)
             self._ml_model = None
@@ -121,37 +120,37 @@ class DemoAnomalyDetector:
                     network_incidents.append([start, end, [symptom]])
         return network_incidents
         
-    def compare_models(self, other_model_name, eval_labels):
-        from sklearn.metrics import classification_report
-        other_model = core.AENetworkAnomaly.load(MODEL_FOLDER / other_model_name)
-        current_model_prediction = self._ml_model.predict(eval_labels.drop('timestamp',axis=1).values, aggregate=False)
-        print(classification_report(eval_labels, y_pred_champ, zero_division=1))
-        return self._ml_model.compare(other_model)
+    # def compare_models(self, other_model_name, eval_labels):
+    #     from sklearn.metrics import classification_report
+    #     other_model = core.AENetworkAnomaly.load(MODEL_FOLDER / other_model_name)
+    #     current_model_prediction = self._ml_model.predict(eval_labels.drop('timestamp',axis=1).values, aggregate=False)
+    #     print(classification_report(eval_labels, y_pred_champ, zero_division=1))
+    #     return self._ml_model.compare(other_model)
 
-    def _format_prediction_outut():
-        """
-        Aggregate overlapping symptoms coming from different metrics
-        """
+    # def _format_prediction_outut():
+    #     """
+    #     Aggregate overlapping symptoms coming from different metrics
+    #     """
 
-        day_symptoms = [
-            (metric_id, symptom[0], symptom[1]) for metric_id, symptoms_list in model_predictions.items() for symptom in symptoms_list 
-        ]
+    #     day_symptoms = [
+    #         (metric_id, symptom[0], symptom[1]) for metric_id, symptoms_list in model_predictions.items() for symptom in symptoms_list 
+    #     ]
 
-        # sort by starting timestamp
-        day_symptoms.sort(key=lambda x: x[1])
+    #     # sort by starting timestamp
+    #     day_symptoms.sort(key=lambda x: x[1])
 
-        if len(day_symptoms) > 0:
-            # create a list of incident in the form [(start_timestamp, end_timestamp, [symptom1, symptom2]),...]
-            start = day_symptoms[0][1] 
-            end = day_symptoms[0][2]
-            network_incidents = [[start, end, [day_symptoms[0]]]]
-            for symptom in day_symptoms[1:]:
-                # if overlapping add to the current incident, new incident otherwise
-                if symptom[1] <= end:
-                    network_incidents[-1][2].append(symptom)
-                    end = max(end, symptom[2])
-                    network_incidents[-1][1] = end
-                else:
-                    start = symptom[1]
-                    end = symptom[2]
-                    network_incidents.append([start, end, [symptom]])
+    #     if len(day_symptoms) > 0:
+    #         # create a list of incident in the form [(start_timestamp, end_timestamp, [symptom1, symptom2]),...]
+    #         start = day_symptoms[0][1] 
+    #         end = day_symptoms[0][2]
+    #         network_incidents = [[start, end, [day_symptoms[0]]]]
+    #         for symptom in day_symptoms[1:]:
+    #             # if overlapping add to the current incident, new incident otherwise
+    #             if symptom[1] <= end:
+    #                 network_incidents[-1][2].append(symptom)
+    #                 end = max(end, symptom[2])
+    #                 network_incidents[-1][1] = end
+    #             else:
+    #                 start = symptom[1]
+    #                 end = symptom[2]
+    #                 network_incidents.append([start, end, [symptom]])

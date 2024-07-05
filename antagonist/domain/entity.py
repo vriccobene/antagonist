@@ -10,6 +10,7 @@ class Entity:
         """
         Validate the input and initialize the object
         """
+        self.id = None
         for key in list(self.data_model.keys()):
             setattr(self, key, None) 
         self._validate_and_initialize(args)
