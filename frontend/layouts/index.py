@@ -13,6 +13,11 @@ layout = html.Div(
     [
         dcc.Location(id="url", refresh=False),
         html.Div(id="page-name", children=["index"], style={"display": "none"}),
+        dcc.Interval(
+            id='interval-component',
+            interval=5000,  # Every 5 seconds
+            n_intervals=0
+        ),
         html.Div(
             id="page-content",
             children=[
@@ -544,8 +549,14 @@ layout = html.Div(
     ]
 )
 
-# Buttons visualization callbacks
 
+
+@service.app.callback(
+    Output("network-anomaly-table", "rowData"),
+    Input("interval-component", "n_intervals"),
+)
+def network_anomaly_table_update(n_intervals):
+    return network_anomaly_api.get_network_anomalies()
 
 @service.app.callback(
     Output("network-anomaly-visualize-button", "style"),
