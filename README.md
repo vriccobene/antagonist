@@ -10,7 +10,7 @@ A network anomaly is a collection of symptoms
 
 # Antagonist Architecture
 
-    ![GitHub Image](/images/antagonist_architecture.png)
+    ![Antagonist Architecture](https://github.com/vriccobene/antagonist/blob/images/antagonist_architecture.png)
 
 # Where to get the data
 Different data sources can be used to demonstrate or run the project.
