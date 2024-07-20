@@ -1,10 +1,16 @@
 # Antagonist
-AnTagOnIst (<ins>An</ins>omaly <ins>Tag</ins>ging <ins>On</ins> h<ins>Ist</ins>orical data) is a tool that supports the visual analysis and the tagging of anomalies on  telemetry data.
+AnTagOnIst (<ins>An</ins>omaly <ins>Tag</ins>ging <ins>On</ins> h<ins>Ist</ins>orical data) is a Label Store for Network Anomaly Detection.
+
+It's basically a tool that supports the visual analysis and the tagging of anomalies on  telemetry data.
 This is done by providing a user-friendly interface to "Tag" anomalous data on multiple telemetry metrics and produce some metadata reflecting the semantic of those anomalies.
 
 # What is a Network Anomaly?
 In the context of this project, an anomaly is considered to be any event that could potentially be of concern in the execution of network services.
 A network anomaly is a collection of symptoms
+
+# Antagonist Architecture
+
+    ![GitHub Image](images/antagonist_architecture.png)
 
 # Where to get the data
 Different data sources can be used to demonstrate or run the project.
