@@ -6,49 +6,50 @@ This is done by providing a user-friendly interface to "Tag" anomalous data on m
 
 # What is a Network Anomaly?
 In the context of this project, an anomaly is considered to be any event that could potentially be of concern in the execution of network services.
-A network anomaly is a collection of symptoms
+A network anomaly is a collection of symptoms.
 
-# Antagonist Architecture
-
-    ![Antagonist Architecture](https://github.com/vriccobene/antagonist/blob/images/antagonist_architecture.png)
-
-# Where to get the data
-Different data sources can be used to demonstrate or run the project.
-An example data set is provided here (instructions on how to set it up are provided below).
-This is based on some open source data available on the web related to network monitoring.
-This data is stored on InfluxDB and can be tagged using Grafana (see instructions below).
-InfluxDB and Grafana are currently provided as example: the system can integrate with any timeseries data and graphical tool, as it provides an abstract API.
-
-The main API is based on 2 IETF drafts:
+More information on Symptoms, Network Anomalies and the format of information that is used in this project can be found in the following documents:
  - https://datatracker.ietf.org/doc/draft-netana-nmop-network-anomaly-semantics/
  - https://datatracker.ietf.org/doc/draft-netana-nmop-network-anomaly-lifecycle/
 
+# Antagonist Architecture
+![Antagonist Architecture](https://github.com/vriccobene/antagonist/blob/IETF120/images/antagonist_architecture.png)
 
 # Installation / deployment instructions
 The easiest way to get this running is by using Docker.
 The following instructions are assuming you have Docker already installed on your system.
 
-## Prepare for the deployment
-The preparation step requires the building of the docker image, by running the following instructions:
-
-    cd antagonist
-    docker_build -t antagonist:latest .
-
-## Deploy
 A docker compose file is provided as part of the project (under the docker directory).
-That docker compose will spin up 4 containers: grafana, influxDB, antagonist, postgres.
+The docker compose will spin up the following containers: 
+
+ - grafana
+ - influxDB
+ - postgres-db
+ - antagonist-core
+ - antagonist-frontend
+ - dashboard-manager
+
+The current version of Antagonist stores information internally on PostgreSLQ.
+In order to allow used to tag data it relies on Grafana, which is automatically connected through the docker compose with InfluxDB.
+
+# Running a demo
+
+## Where to get the data?
+ If you want to run a demo, you can use this opensource data available in the following repository.
+ 
+ Create the directory ./data/OmniAnomaly and inside that directory, run this command:
+
+    git clone https://github.com/NetManAIOps/OmniAnomaly.git
+
 
 ## Prepare the data
-After deploying the c ontainers, you will need to add the data to InfluxDB.
-This can be done by using theprovided script to load up the data (script provided in the scripts directory).
+After deploying the containers, it is required to add telemetry data into InfluxDB.
+This can be done by using the provided script to load up the data. Instructions are provided in the following:
 
-    cd scripts/data_load
+    cd demo
     python -m pip install -r requirements.txt
-    python influxdb_load_data.py
+    python demo_preparation.py
 
-If you want to use that script to load up the data, data file is avaialable here: https://github.com/cisco-ie/telemetry/blob/master/2/bgpclear.csv.zip
-
-(But it should be relatively easy to work with different data).
 
 ## Tagging data using Grafana
 The GUI (Graphic User Interface) is based on Grafana (https://github.com/grafana/grafana), an open source software used for data visualization.
@@ -58,15 +59,6 @@ The system relies on a Grafana native functionality called "Annotations", which 
 Two pre-defined Grafana dashboards have to be load up on the system, which are located in docker/grafana/provisioning/dashboads/
 
 They can be imported in Grafana, following the standard import procedure.
-
-# Data for the Demo
-
- ## Where to get the data?
- For the initial demo we are taking some opensource data from the following repository:
- 
- Create the directory ./data/OmniAnomaly and inside that directory, run this command
-
-    git clone https://github.com/NetManAIOps/OmniAnomaly.git
 
 
 # Disclaimer
