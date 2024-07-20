@@ -41,7 +41,6 @@ In order to allow used to tag data it relies on Grafana, which is automatically 
 
     git clone https://github.com/NetManAIOps/OmniAnomaly.git
 
-
 ## Prepare the data
 After deploying the containers, it is required to add telemetry data into InfluxDB.
 This can be done by using the provided script to load up the data. Instructions are provided in the following:
@@ -50,15 +49,17 @@ This can be done by using the provided script to load up the data. Instructions 
     python -m pip install -r requirements.txt
     python demo_preparation.py
 
+## Load up the dashboard on Grafana
+Two pre-defined Grafana dashboards have to be load up on the system, which are located in docker/grafana/provisioning/dashboads/
+They can be imported in Grafana, following the common dashboard import procedure.
 
 ## Tagging data using Grafana
 The GUI (Graphic User Interface) is based on Grafana (https://github.com/grafana/grafana), an open source software used for data visualization.
 The system relies on a Grafana native functionality called "Annotations", which allows the user to add annotations to timeseries data. These annotations are then queried using the Grafana REST API and enriched through the information added in the GUI by the user.
 
-## Load up the dashboard on Grafana
-Two pre-defined Grafana dashboards have to be load up on the system, which are located in docker/grafana/provisioning/dashboads/
-
-They can be imported in Grafana, following the standard import procedure.
+## Accessing the demo GUI
+- Grafana: http://localhost:3000/
+- Antagonist Web GUI: http://localhost:8050/
 
 
 # Disclaimer
@@ -74,4 +75,4 @@ There are several actions recommended before running this code in production. So
 
 - Replace Flask REST with a proper HTTP Server
 - Remove passwords and tokens from the configuration files and fill them with proper mechanisms
-- ...
+- ... to be continued
