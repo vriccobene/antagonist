@@ -63,7 +63,7 @@ services:
       GF_INSTALL_PLUGINS: volkovlabs-form-panel
     # Note: this is a workaround for a permission issue on Linux with the plugin above
     # Replace 1001 with the output of "id -u"
-    user: "1001"
+    user: root
     volumes:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
       - ./grafana/plugins/:/var/lib/grafana/plugins/
