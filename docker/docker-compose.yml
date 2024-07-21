@@ -66,7 +66,7 @@ services:
     user: root
     volumes:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
-      - ./grafana/plugins/:/var/lib/grafana/plugins/
+      - ./grafana/:/var/lib/grafana/
     depends_on:
       - influx
       - postgres
