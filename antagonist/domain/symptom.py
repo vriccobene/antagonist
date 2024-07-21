@@ -24,7 +24,7 @@ class Symptom(entity.Entity):
     }
 
     def __init__(self, args):
-        if not args.get('even-id', None):
+        if not args.get('event-id', None):
             args['event-id'] = str(uuid.uuid4())
         
         try:
@@ -71,6 +71,8 @@ class Symptom(entity.Entity):
         """
         res = list(self.data_model.keys())
         res.remove("tags")
+        res.append("source_name")
+        res.append("source_type")
         res.remove("annotator")
         return res
     
@@ -79,6 +81,9 @@ class Symptom(entity.Entity):
         Return the values of the fields of the object that require to be store in the database
         """
         res = [getattr(self, key) for key in self.data_model.keys() if key not in ['annotator', 'tags']]
+        res.append(self.annotator.name)
+        res.append(self.annotator.annotator_type)
+
         # res = res[:-2]
         return res
     

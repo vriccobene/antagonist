@@ -1,5 +1,6 @@
 import uuid
 import psycopg2, psycopg2.extras
+from database import query_generator
 from domain import network_anomaly, symptom_to_network_anomaly, annotator
 from config import env
 from domain import symptom
@@ -121,6 +122,7 @@ class PostgresqlDatabase(database_base.DatabaseBase):
             else:
                 query = "SELECT * FROM network_anomaly WHERE id = %s"
                 values = (network_anomaly_id,)
+                logger.info(f"Query: {query}, values: {values}")
                 cursor.execute(query, values)
                 network_anomaly_val = cursor.fetchone()
                 network_anomaly_obj = _convert_to_obj(network_anomaly_val)
@@ -186,8 +188,16 @@ class PostgresqlDatabase(database_base.DatabaseBase):
             return False
 
     def get_symptom(
-            self, symptom_id:uuid.uuid4=None, network_anomaly_id:uuid.uuid4=None, 
-            start_time:str=None, end_time:str=None):
+            self, 
+            symptom_id:uuid.uuid4=None, 
+            network_anomaly_id:uuid.uuid4=None, 
+            start_time:str=None, 
+            end_time:str=None,
+            min_confidence_score:float=0.0,
+            min_concern_score:float=0.0,
+            annotator_name:str=None,
+            annotator_type:str=None, 
+            tags:dict=None):
         """
         Retrieves a symptom from the PostgreSQL database.
 
@@ -201,7 +211,6 @@ class PostgresqlDatabase(database_base.DatabaseBase):
         # TODO - move data model related stuff in the entity definition
         def _convert_to_obj(symptom_val):
             # TODO: Add checks to the tags
-            tags = self._get_tags(symptom_val[0])
             res = symptom.Symptom({
                 "event-id": str(symptom_val[1]),
                 "start-time": str(symptom_val[2]).replace(' ', 'T'), 
@@ -209,67 +218,64 @@ class PostgresqlDatabase(database_base.DatabaseBase):
                 "description": symptom_val[4], 
                 "confidence-score": symptom_val[5], 
                 "concern-score": symptom_val[6], 
-                "annotator": dict(symptom_val[7]), 
-                "tags": tags
+                "annotator": {
+                    "name": symptom_val[7],
+                    "annotator_type": symptom_val[8]
+                },
+                "tags": self._get_tags(symptom_val[0])
             })
             res.id = symptom_val[0]
             return res
 
+        input_params = {
+            'id': symptom_id, 
+            'network_anomaly_id': network_anomaly_id, 
+            'start_time': str(start_time) if start_time else None, 
+            'end_time': str(end_time) if end_time else None, 
+            'confidence_score': min_confidence_score, 
+            'concern_score': min_concern_score, 
+            'annotator_name': annotator_name, 
+            'annotator_type': annotator_type, 
+            'tags': tags
+        }
+
+        logger.info(f"Input Parameters: {input_params}")
+        query, values = query_generator.QueryGenerator.generate_query("symptom", input_params)
+
         try:
             cursor = self.connection.cursor()
-
+            logger.info("Getting ready for the query")
             if start_time and end_time:
-                # Retrieve all symptoms within a time range
-                query = "SELECT " \
-                        "id, event_id, start_time, end_time, descript, confidence_score, " \
-                        "concern_score, pattern " \
-                        "FROM symptom " \
-                        "WHERE (start_time >= %s AND start_time <= %s) OR " \
-                              "(end_time >= %s AND end_time <= %s) OR " \
-                              "(start_time <= %s AND end_time >= %s)"
-                values = (start_time, end_time, start_time, end_time, end_time, start_time,)
+                logger.info("Option 1") 
                 cursor.execute(query, values)
                 symptom_list = cursor.fetchall()
                 logger.debug(f"Retrieved symptoms: {symptom_list}")
                 logger.info("Symptoms retrieved successfully!")
                 return [_convert_to_obj(symptom_val) for symptom_val in symptom_list] or []
             if not symptom_id and not network_anomaly_id:
-                cursor.execute(
-                    "SELECT " \
-                    "id, event_id, start_time, end_time, descript, confidence_score, " \
-                    "concern_score, pattern " \
-                    "FROM symptom")
+                logger.info("Option 2")
+                cursor.execute(query, values)
                 symptom_list = cursor.fetchall()
                 logger.debug(f"Retrieved symptoms: {symptom_list}")
                 logger.info("Symptoms retrieved successfully!")
                 return [_convert_to_obj(symptom_val) for symptom_val in symptom_list] or []
             elif not network_anomaly_id:
-                query = "SELECT symptom.* " \
-                    "id, event_id, start_time, end_time, descript, confidence_score, " \
-                    "concern_score, pattern " \
-                    " FROM symptom WHERE id = %s"
-                values = (symptom_id,)
+                logger.info("Option 3")
                 cursor.execute(query, values)
                 symptom_val = cursor.fetchone()
+                if symptom_val is None:
+                    logger.error(f"Symptom with ID {symptom_id} not found")
+                    return list()
+                logger.info(f"Symptom retrieved successfully: {symptom_val}")
                 symptom_obj = _convert_to_obj(symptom_val)
                 symptom_obj.id = symptom_val[0]
                 logger.debug(f"Retrieved symptom: {symptom_obj}")
                 logger.info("Symptom retrieved successfully!")
                 return symptom_obj
             else:
-                # Retrieve all symptoms associated with an network anomaly
-                query = "SELECT " \
-                        "symptom.id, symptom.event_id, symptom.start_time, symptom.end_time, " \
-                        "symptom.descript, symptom.confidence_score, symptom.concern_score, " \
-                        "symptom.pattern " \
-                        "FROM symptom " \
-                        "INNER JOIN network_anomaly_contains_symptom " \
-                        "ON symptom.id=network_anomaly_contains_symptom.symptom_id " \
-                        "WHERE network_anomaly_contains_symptom.network_anomaly_id = %s"
-                values = (network_anomaly_id,)
+                logger.info("Option 4")
                 cursor.execute(query, values)
                 symptom_list = cursor.fetchall()
-                
                 logger.info("Symptoms retrieved successfully!")
                 return [_convert_to_obj(symptom_val) for symptom_val in symptom_list] or []
 
@@ -292,7 +298,7 @@ class PostgresqlDatabase(database_base.DatabaseBase):
         values = symptom.get_field_values()
         cursor.execute(
             "INSERT INTO symptom " \
-            f"{cols} VALUES (%s, %s, %s, %s, %s, %s, %s)" \
+            f"{cols} VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)" \
             "RETURNING id", tuple(values)
         )
         logger.info("Stored symptom in the database")

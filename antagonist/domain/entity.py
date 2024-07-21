@@ -12,7 +12,7 @@ class Entity:
         """
         self.id = None
         for key in list(self.data_model.keys()):
-            setattr(self, key, None) 
+            setattr(self, key, None)
         self._validate_and_initialize(args)
 
     def _validate_and_initialize(self, args):
@@ -36,7 +36,7 @@ class Entity:
         """
         res = list(self.data_model.keys())
         return res
-    
+        
     def get_field_values(self):
         """
         Return the values of the fields of the object that require to be store in the database
