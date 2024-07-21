@@ -46,9 +46,17 @@ def symptom():
         network_anomaly_id = request.args.get('network-anomaly-id', None)
         start_time = request.args.get('start-time', None)
         end_time = request.args.get('end-time', None)
+        min_confidence_score = request.args.get('min-confidence-score', 0.0)
+        min_concern_score = request.args.get('min-concern-score', 0.0)
+        annotator_name = request.args.get('annotator-name', None)
+        annotator_type = request.args.get('annotator-type', None)
+        tags = request.get_json().get('tags', None)
+
         db_res = database.get_symptom(
             symptom_id=symptom_id, network_anomaly_id=network_anomaly_id, 
-            start_time=start_time, end_time=end_time) 
+            start_time=start_time, end_time=end_time, min_confidence_score=min_confidence_score,
+            min_concern_score=min_concern_score, annotator_name=annotator_name, 
+            annotator_type=annotator_type, tags=tags) 
         
         if not symptom_id:
             db_res = db_res or []

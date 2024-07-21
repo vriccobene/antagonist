@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 ANTAGONIST_CORE_HOST = "http://antagonist-core:5001"
+# ANTAGONIST_CORE_HOST = "http://localhost:5001"
 
 
 column_subset = ["Description"]
