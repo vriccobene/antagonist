@@ -1,5 +1,5 @@
 # Antagonist
-AnTagOnIst (<ins>An</ins>omaly <ins>Tag</ins>ging <ins>On</ins> h<ins>Ist</ins>orical data) is a tool that supports the visual analysis and the tagging of anomalies on  telemetry data.
+**AnTagOnIst** (<ins>An</ins>omaly <ins>Tag</ins>ging <ins>On</ins> h<ins>Ist</ins>orical data) is a tool that supports the visual analysis and the tagging of anomalies on  telemetry data.
 This is done by providing a user-friendly interface to "Tag" anomalous data on multiple telemetry metrics and produce some metadata reflecting the semantic of those anomalies.
 
 # What is a Network Anomaly?
@@ -19,30 +19,58 @@ The main API is based on 2 IETF drafts:
 
 
 # Installation / deployment instructions
-The easiest way to get this running is by using Docker.
+The easiest way to get this running is by using [Docker](https://www.docker.com/).
 The following instructions are assuming you have Docker already installed on your system.
 
 ## Prepare for the deployment
 The preparation step requires the building of the docker image, by running the following instructions:
 
-    cd antagonist
-    docker_build -t antagonist:latest .
+```shell
+# From the project's root directory
+cd antagonist
+docker build -t antagonist:latest .
+```
+
+Note: if running behind a proxy, you might need to use `docker build --build-arg HTTPS_PROXY="http://proxy.example.com:3128" -t antagonist:latest .` or similar. See the DockerDocs [here](https://docs.docker.com/engine/cli/proxy/) for options.
 
 ## Deploy
-A docker compose file is provided as part of the project (under the docker directory).
-That docker compose will spin up 4 containers: grafana, influxDB, antagonist, postgres.
+A [Docker Compose](https://docs.docker.com/compose/) file is provided as part of the project (under the project's [docker](./docker) folder).
+That docker compose will spin up 4 containers: [*grafana*](https://grafana.com/), [*influxdb*](https://www.influxdata.com/), *antagonist*, and [*postgres*](https://www.postgresql.org/).
+
+To launch the project stack:
+```shell
+# From the project's root directory
+cd docker
+docker compose up
+```
+
+Once the stack started, the Antagonist frontend is available at http://localhost:8050/. 
+See below for how to tag data and work with the Antagonist framework.
 
 ## Prepare the data
-After deploying the c ontainers, you will need to add the data to InfluxDB.
-This can be done by using theprovided script to load up the data (script provided in the scripts directory).
+After deploying the containers, you will need to add the data to InfluxDB.
+This can be done by using the provided script to load up the data (script provided in the project's [scripts](./scripts) folder).
 
-    cd scripts/data_load
-    python -m pip install -r requirements.txt
-    python influxdb_load_data.py
+```shell
+# From the project's root directory
+cd scripts/data_load
+python -m pip install -r requirements.txt
+python influxdb_load_data.py
+```
 
-If you want to use that script to load up the data, data file is avaialable here: https://github.com/cisco-ie/telemetry/blob/master/2/bgpclear.csv.zip
+If you want to use that script to load up the data, a demo dataset is available at https://github.com/cisco-ie/telemetry/blob/master/2/bgpclear.csv.zip. 
+You may use the following commands to get the demo dataset before running the above `influxdb_load_data.py` step:
+```shell
+# From the project's root directory
+# If behind proxy, add the following argument to the curl command: --proxy proxy.example.com:3128 \
+curl -L \
+  -o ./data/bgpclear.csv.zip \
+  --create-dirs \
+  https://github.com/cisco-ie/telemetry/raw/refs/heads/master/2/bgpclear.csv.zip
+unzip ./data/bgpclear.csv.zip -d ./data/
+```
 
-(But it should be relatively easy to work with different data).
+Note that it should be relatively easy to work with a different dataset.
 
 ## Tagging data using Grafana
 The GUI (Graphic User Interface) is based on Grafana (https://github.com/grafana/grafana), an open source software used for data visualization.
