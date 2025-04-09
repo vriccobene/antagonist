@@ -1,6 +1,8 @@
 import uuid
+import json
 import datetime as date
 from domain import entity, check_data_types
+from domain import annotator
 
 import logging
 logger = logging.getLogger(__name__)
@@ -15,19 +17,14 @@ class Symptom(entity.Entity):
         "end-time": date.datetime, 
         "description": str, 
         "confidence-score": float, 
-        "concern-score": float, 
-        "plane": check_data_types.Plane, 
-        "action": str, 
-        "cause": str, 
-        "reason": str, 
+        "concern-score": float,  
         "pattern": str, 
-        "source-type": str, 
-        "source-name": str,
+        "annotator": annotator.Annotator, 
         "tags": dict
     }
 
     def __init__(self, args):
-        if not args.get('even-id', None):
+        if not args.get('event-id', None):
             args['event-id'] = str(uuid.uuid4())
         
         try:
@@ -48,6 +45,10 @@ class Symptom(entity.Entity):
         if isinstance(args.get('concern-score', None), int):
             args['concern-score'] = float(args.get('concern-score', None))
 
+        logger.info(f"ARG TAGS: {args.get('tags', None)}")
+        if isinstance(args.get('tags', None), str):
+            args['tags'] = json.loads(args.get('tags', '{}').replace("'", '"'))
+
         super().__init__(args)
 
     def __iter__(self):
@@ -55,7 +56,13 @@ class Symptom(entity.Entity):
         Return an iterator for the object
         """
         yield "id", self.id
+        # for key in self.data_model.keys():
+        #     yield key, getattr(self, key)
+        
         for key in self.data_model.keys():
+            if key == "annotator":
+                yield key, dict(self.annotator)
+                continue
             yield key, getattr(self, key)
     
     def get_field_keys(self):
@@ -64,13 +71,19 @@ class Symptom(entity.Entity):
         """
         res = list(self.data_model.keys())
         res.remove("tags")
+        res.append("source_name")
+        res.append("source_type")
+        res.remove("annotator")
         return res
     
     def get_field_values(self):
         """
         Return the values of the fields of the object that require to be store in the database
         """
-        res = [getattr(self, key) for key in self.data_model.keys()]
-        res = res[:-1]
+        res = [getattr(self, key) for key in self.data_model.keys() if key not in ['annotator', 'tags']]
+        res.append(self.annotator.name)
+        res.append(self.annotator.annotator_type)
+
+        # res = res[:-2]
         return res
     

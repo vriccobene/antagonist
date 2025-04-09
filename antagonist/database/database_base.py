@@ -1,6 +1,6 @@
 import abc
 import uuid
-from domain.incident import Incident
+from domain.network_anomaly import NetworkAnomaly
 from domain.symptom import Symptom
 
 
@@ -15,7 +15,7 @@ class DatabaseBase:
         raise NotImplementedError
     
     @abc.abstractmethod
-    def store_incident(self, incident:Incident):
+    def store_network_anomaly(self, incident:NetworkAnomaly):
         raise NotImplementedError
     
     @abc.abstractmethod

@@ -114,7 +114,7 @@ def create_network_anomaly_grafana_annotation(start_time: int, end_time: int, de
         'time': int(f'{start_time}000'), 
         'timeEnd': int(f'{end_time}000'), 
         'text': description, 
-        'tags': ['Incident']
+        'tags': ['NetworkAnomaly']
     }
 
 
@@ -126,8 +126,11 @@ def define_symptom(group, machine, start_time, end_time, event_id, metric, descr
         'concern-score': 0.9, 
         'confidence-score': 1, 
         'description': description, 
-        'source-name': 'ground-truth', 'source-type': 'human', 
-        'action': 'drop', 'cause': 'x', 'reason': '{metric}', 'plane': 'forwarding', 'pattern': '', 
+        'pattern': '', 
+        'annotator': {
+            'name': 'ground-truth', 
+            'annotator_type': 'human'
+        },
         'tags': {
             'machine': machine,
             'group': group,
@@ -138,7 +141,7 @@ def define_symptom(group, machine, start_time, end_time, event_id, metric, descr
 
 def define_network_anomaly(machine, timestamp):
     return { 
-        'author': {'author_type': 'human', 'name': 'admin', 'version': 0}, 
+        'annotator': {'annotator_type': 'human', 'name': 'admin'}, 
         'description': f'Network Anomaly on {machine} - {datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d at %H")}', 
         'state': 'Confirmed', 
         'version': 2,
@@ -274,7 +277,7 @@ def send_data_to_antagonist(data_to_store):
     for network_anomaly in data_to_store['network_anomalies']:
         network_anomaly_data = network_anomaly.copy()
         symptoms = network_anomaly_data.pop('symptoms')
-        response = requests.post("http://localhost:5001/api/rest/v1/incident", json=network_anomaly_data)
+        response = requests.post("http://localhost:5001/api/rest/v1/network_anomaly", json=network_anomaly_data)
         response.raise_for_status()
         network_anomaly_id = response.json()
     
@@ -285,9 +288,9 @@ def send_data_to_antagonist(data_to_store):
             symptom_id = response.json()
         
             # Store Symptoms to Network Anomalies
-            symmptom_to_network_anomaly = {"incident-id": network_anomaly_id, "symptom-id": symptom_id}
+            symmptom_to_network_anomaly = {"network-anomaly-id": network_anomaly_id, "symptom-id": symptom_id}
             response = requests.post(
-                "http://localhost:5001/api/rest/v1/incident/symptom", json=symmptom_to_network_anomaly)
+                "http://localhost:5001/api/rest/v1/network_anomaly/symptom", json=symmptom_to_network_anomaly)
             response.raise_for_status()
 
 

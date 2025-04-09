@@ -30,6 +30,9 @@ def dashboard():
     dashboard_name = input_params.get('dashboard-name', None)
     filters = input_params.get('tags', {})
     tags = [f"{k}:{v}" for k, v in filters.items()]
+    
+    # TODO Manage the annoator name and type in the antagonist service
+    filters = {k: v for k, v in filters.items() if k not in ['annotator-name', 'annotator-type']}
 
     logger.info("Prepared data for dashboard creation")
     logger.info(f"{dashboard_name}, {tags} , {filters}")

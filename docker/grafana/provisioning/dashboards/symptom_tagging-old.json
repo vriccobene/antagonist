@@ -21,7 +21,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "11.1.0"
+      "version": "10.1.5"
     },
     {
       "type": "datasource",
@@ -39,7 +39,7 @@
       "type": "panel",
       "id": "volkovlabs-form-panel",
       "name": "Data Manipulation",
-      "version": "3.8.0"
+      "version": "3.6.0"
     }
   ],
   "annotations": {
@@ -131,7 +131,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -269,7 +268,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -375,11 +373,6 @@
           "body": "Please confirm to update changed values",
           "cancel": "Cancel",
           "columns": {
-            "include": [
-              "name",
-              "oldValue",
-              "newValue"
-            ],
             "name": "Label",
             "newValue": "New Value",
             "oldValue": "Old Value"
@@ -492,23 +485,7 @@
             "value": 0
           },
           {
-            "hidden": false,
-            "id": "annotator-name",
-            "labelWidth": 20,
-            "queryField": {
-              "label": "undefined:login",
-              "value": "login"
-            },
-            "section": "annotator",
-            "title": "Name",
-            "tooltip": "",
-            "type": "string",
-            "uid": "c8650bbc-d19c-42ce-9c55-0ced6451ed07",
-            "unit": "",
-            "value": ""
-          },
-          {
-            "id": "annotator-type",
+            "id": "source-type",
             "labelWidth": 20,
             "options": [
               {
@@ -524,11 +501,27 @@
                 "value": "algorithm"
               }
             ],
-            "section": "annotator",
-            "title": "Type",
+            "section": "source",
+            "title": "Source Type",
             "tooltip": "",
             "type": "radio",
             "uid": "7e92a19a-9673-4219-ad70-96cc1d3bcb91",
+            "unit": "",
+            "value": ""
+          },
+          {
+            "hidden": false,
+            "id": "source-name",
+            "labelWidth": 20,
+            "queryField": {
+              "label": "undefined:login",
+              "value": "login"
+            },
+            "section": "source",
+            "title": "Source Name",
+            "tooltip": "",
+            "type": "string",
+            "uid": "c8650bbc-d19c-42ce-9c55-0ced6451ed07",
             "unit": "",
             "value": ""
           },
@@ -573,7 +566,7 @@
                 "value": "other"
               }
             ],
-            "section": "symptom",
+            "section": "semantic",
             "title": "Pattern",
             "tooltip": "",
             "type": "select",
@@ -582,14 +575,82 @@
             "value": ""
           },
           {
+            "id": "plane",
+            "labelWidth": 20,
+            "options": [
+              {
+                "id": "forwarding",
+                "label": "Forwarding",
+                "type": "string",
+                "value": "forwarding"
+              },
+              {
+                "id": "control",
+                "label": "Control",
+                "type": "string",
+                "value": "control"
+              },
+              {
+                "id": "management",
+                "label": "Management",
+                "type": "string",
+                "value": "management"
+              }
+            ],
+            "optionsSource": "Custom",
+            "section": "semantic",
+            "title": "Plane",
+            "tooltip": "",
+            "type": "select",
+            "uid": "08e8d142-c121-4350-8886-9519250ab94f",
+            "unit": "",
+            "value": ""
+          },
+          {
             "hidden": false,
-            "id": "tags",
-            "labelWidth": 10,
-            "section": "symptom",
-            "title": "Tags",
+            "id": "action",
+            "labelWidth": 20,
+            "section": "semantic",
+            "title": "Action",
             "tooltip": "",
             "type": "string",
-            "uid": "d3f0b27d-56e6-4fb3-bc32-2fa9b7153e18",
+            "uid": "c8e13dbd-9c6a-486b-a596-1d88f7fb4ec8",
+            "unit": "",
+            "value": ""
+          },
+          {
+            "hidden": false,
+            "id": "reason",
+            "labelWidth": 20,
+            "section": "semantic",
+            "title": "Reason",
+            "tooltip": "",
+            "type": "string",
+            "uid": "1f297f75-4ec9-4e80-b866-be76d3afa54e",
+            "unit": "",
+            "value": ""
+          },
+          {
+            "hidden": false,
+            "id": "cause",
+            "labelWidth": 20,
+            "section": "semantic",
+            "title": "Cause",
+            "tooltip": "",
+            "type": "string",
+            "uid": "2e86f344-9034-49df-8275-e289df533fdf",
+            "unit": "",
+            "value": ""
+          },
+          {
+            "hidden": false,
+            "id": "url",
+            "labelWidth": 10,
+            "section": "tags",
+            "title": "URL",
+            "tooltip": "",
+            "type": "string",
+            "uid": "d39c486e-5f8e-4a6d-ba2c-0434f35dbf89",
             "unit": "",
             "value": ""
           }
@@ -611,8 +672,16 @@
               "name": "Symptom"
             },
             {
-              "id": "annotator",
-              "name": "Annotator"
+              "id": "source",
+              "name": "Source"
+            },
+            {
+              "id": "semantic",
+              "name": "Semantic"
+            },
+            {
+              "id": "tags",
+              "name": "Tags"
             }
           ],
           "variant": "split"
@@ -648,15 +717,14 @@
           "confirm": false,
           "contentType": "application/json",
           "datasource": "PostgreSQL",
-          "getPayload": "const payload = {};\nelements.forEach((element) => {\n  if (!element.value) {\n    return;\n  }\n  payload[element.id] = element.value;\n})\n\ndelete payload['symptom-id']\n\nif (payload['tags'] == null) {\n  payload['tags'] = {}\n}\n\n// payload['tags']['url'] = payload['url']\n// delete payload['url']\n\npayload['annotator'] = {}\npayload['annotator']['name'] = payload['annotator-name']\npayload['annotator']['annotator_type'] = payload['annotator-type']\ndelete payload['annotator-name']\ndelete payload['annotator-type']\n\nreturn payload;\n\n/**\n * Data Source payload\n */\nreturn {\n  rawSql: 'UPDATE symptom SET start_time=${payload}, end_time=${}, descript=${ }, concern=${ }, source=${ }, source_name=${}',\n  format: 'table',\n};",
+          "getPayload": "const payload = {};\nelements.forEach((element) => {\n  if (!element.value) {\n    return;\n  }\n  payload[element.id] = element.value;\n})\n\ndelete payload['symptom-id']\n\npayload['tags'] = {}\npayload['tags']['url'] = payload['url']\ndelete payload['url']\n\nreturn payload;\n\n/**\n * Data Source payload\n */\nreturn {\n  rawSql: 'UPDATE symptom SET start_time=${payload}, end_time=${}, descript=${ }, concern=${ }, source=${ }, source_name=${}',\n  format: 'table',\n};",
           "header": [],
           "method": "POST",
           "payloadMode": "custom",
           "url": "http://localhost:5001/api/rest/v1/symptom"
-        },
-        "updateEnabled": "auto"
+        }
       },
-      "pluginVersion": "3.8.0",
+      "pluginVersion": "3.6.0",
       "targets": [
         {
           "datasource": {
@@ -672,15 +740,17 @@
       "type": "volkovlabs-form-panel"
     }
   ],
-  "schemaVersion": 39,
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
           "selected": true,
-          "text": "1h",
-          "value": "1h"
+          "text": "1m",
+          "value": "1m"
         },
         "description": "Resolution of the data",
         "hide": 0,
@@ -700,7 +770,7 @@
             "value": "10s"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "1m",
             "value": "1m"
           },
@@ -710,7 +780,7 @@
             "value": "10m"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "1h",
             "value": "1h"
           },
@@ -756,6 +826,6 @@
   "timezone": "",
   "title": "Symptom Tagging",
   "uid": "a5901a0c-71cb-42b5-a9df-cba7b7f7885b",
-  "version": 9,
+  "version": 4,
   "weekStart": ""
 }

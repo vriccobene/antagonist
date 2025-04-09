@@ -20,7 +20,7 @@ LOGGING_LEVEL = logging.DEBUG
 # GRAFANA_DASHBOARD_PATH = "dashboards"
 
 # PostgreSQL
-POSTGRESQL_DB_NAME = 'incidents'
+POSTGRESQL_DB_NAME = 'network_anomalies'
 POSTGRESQL_DB_USER = 'antagonist'
 POSTGRESQL_DB_PASSWORD = 'antagonist-password'
 # POSTGRESQL_DB_HOST = 'localhost'#'postgres'
