@@ -1,7 +1,7 @@
 # Antagonist
 AnTagOnIst (<ins>An</ins>omaly <ins>Tag</ins>ging <ins>On</ins> h<ins>Ist</ins>orical data) is a Label Store for Network Anomaly Detection.
-
 It's basically a tool that supports the visual analysis and the tagging of anomalies on  telemetry data.
+
 This is done by providing a user-friendly interface to "Tag" anomalous data on multiple telemetry metrics and produce some metadata reflecting the semantic of those anomalies.
 
 # What is a Network Anomaly?
@@ -16,7 +16,7 @@ More information on Symptoms, Network Anomalies and the format of information th
 ![Antagonist Architecture](https://github.com/vriccobene/antagonist/blob/IETF120/images/antagonist_architecture.png)
 
 # Installation / deployment instructions
-The easiest way to get this running is by using Docker.
+The easiest way to get this running is by using [Docker](https://www.docker.com/).
 The following instructions are assuming you have Docker already installed on your system.
 
 A docker compose file is provided as part of the project (under the docker directory).
