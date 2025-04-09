@@ -9,8 +9,8 @@ In the context of this project, an anomaly is considered to be any event that co
 A network anomaly is a collection of symptoms.
 
 More information on Symptoms, Network Anomalies and the format of information that is used in this project can be found in the following documents:
- - https://datatracker.ietf.org/doc/draft-netana-nmop-network-anomaly-semantics/
- - https://datatracker.ietf.org/doc/draft-netana-nmop-network-anomaly-lifecycle/
+ - https://datatracker.ietf.org/doc/draft-ietf-nmop-network-anomaly-lifecycle/
+ - https://datatracker.ietf.org/doc/draft-ietf-nmop-network-anomaly-semantics/
 
 # Antagonist Architecture
 ![Antagonist Architecture](https://github.com/vriccobene/antagonist/blob/IETF120/images/antagonist_architecture.png)
@@ -43,9 +43,9 @@ Note: if running behind a proxy, you might need to use `docker build --build-arg
  
  Create the directory ./data/OmniAnomaly and inside that directory, run this command:
 
-'''shell
+
     git clone https://github.com/NetManAIOps/OmniAnomaly.git
-'''
+
 
 ## Prepare the data
 After deploying the containers, it is required to add telemetry data into InfluxDB.
@@ -56,11 +56,11 @@ This can be done by using the provided script to load up the data. Instructions 
     python demo_preparation.py
 
 ## Load up the dashboard on Grafana
-Two pre-defined Grafana dashboards have to be load up on the system, which are located in docker/grafana/provisioning/dashboads/
+Two pre-defined Grafana dashboards have to be load up on the system, which are located in the [dashboard](./docker/grafana/provisioning/dashboard) directory.
 They can be imported in Grafana, following the common dashboard import procedure.
 
 ## Tagging data using Grafana
-The GUI (Graphic User Interface) is based on Grafana (https://github.com/grafana/grafana), an open source software used for data visualization.
+The GUI (Graphic User Interface) is based on [*Grafana*](https://grafana.com/), an open source software used for data visualization.
 The system relies on a Grafana native functionality called "Annotations", which allows the user to add annotations to timeseries data. These annotations are then queried using the Grafana REST API and enriched through the information added in the GUI by the user.
 
 ## Accessing the demo GUI
@@ -81,4 +81,3 @@ There are several actions recommended before running this code in production. So
 
 - Replace Flask REST with a proper HTTP Server
 - Remove passwords and tokens from the configuration files and fill them with proper mechanisms
-- ... to be continued
