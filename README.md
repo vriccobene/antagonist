@@ -19,18 +19,22 @@ More information on Symptoms, Network Anomalies and the format of information th
 The easiest way to get this running is by using [Docker](https://www.docker.com/).
 The following instructions are assuming you have Docker already installed on your system.
 
-A docker compose file is provided as part of the project (under the docker directory).
+
+A [Docker Compose](https://docs.docker.com/compose/) file is provided as part of the project (under the project's [docker](./docker) folder).
+ 
 The docker compose will spin up the following containers: 
 
- - grafana
- - influxDB
- - postgres-db
+ - [*grafana*](https://grafana.com/)
+ - [*influxdb*](https://www.influxdata.com/)
+ - [*postgres*](https://www.postgresql.org/)
  - antagonist-core
  - antagonist-frontend
  - dashboard-manager
 
 The current version of Antagonist stores information internally on PostgreSLQ.
 In order to allow used to tag data it relies on Grafana, which is automatically connected through the docker compose with InfluxDB.
+
+Note: if running behind a proxy, you might need to use `docker build --build-arg HTTPS_PROXY="http://proxy.example.com:3128" -t antagonist:latest .` or similar. See the DockerDocs [here](https://docs.docker.com/engine/cli/proxy/) for options.
 
 # Running a demo
 
@@ -39,7 +43,9 @@ In order to allow used to tag data it relies on Grafana, which is automatically 
  
  Create the directory ./data/OmniAnomaly and inside that directory, run this command:
 
+'''shell
     git clone https://github.com/NetManAIOps/OmniAnomaly.git
+'''
 
 ## Prepare the data
 After deploying the containers, it is required to add telemetry data into InfluxDB.
