@@ -1,0 +1,95 @@
+
+
+services:
+
+  antagonist-frontend:
+    container_name: antagonist-frontend
+    build:
+      context: ./src/frontend/
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_BASE_URL=http://antagonist-backend:8000
+    restart: unless-stopped
+  
+  postgres:
+    image: library/postgres:15
+    container_name: postgresql
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+    volumes:
+      - ./postgres/data/:/var/lib/postgresql/data
+      - ./postgres/initd/:/docker-entrypoint-initdb.d/
+    networks:
+      - postgres
+
+  antagonist-backend:
+    build:
+        context: ./src/backend/
+        dockerfile: Dockerfile
+    env_file:
+      - .env
+    container_name: antagonist-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # TODO Remove these variables from here and add them to the UI, when committing new data sources
+      - POSTGRES_CONTAINER=postgresql
+      - POSTGRES_HOST=postgresql
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DBNAME=antagonist
+      - INFLUXDB_ORG=${INFLUXDB_ORG}
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET}
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
+    networks:
+      - influx
+      - postgres
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    restart: always
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influx/data/:/var/lib/influxdb
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=${INFLUXDB_MODE}
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET}
+      - DOCKER_INFLUXDB_INIT_RETENTION=${INFLUXDB_RETENTION}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
+    networks:
+      - influx
+
+networks:
+  influx:
+    driver: bridge
+  postgres:
+    driver: bridge
+
+volumes:
+  influx:
+  postgres:
+  grafana:
