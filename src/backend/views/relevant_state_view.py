@@ -106,7 +106,7 @@ class RelevantStateView:
                 db.Service.id == relevant_state.service.id)
         ).first()
         if existing_service:
-            service = existing_service
+            service = existing_service.id
         else:
             service = service_view.ServiceView.create(
                 relevant_state.service, db_session)
@@ -133,7 +133,7 @@ class RelevantStateView:
             confidence_score=relevant_state.confidence_score,
             concern_score=relevant_state.concern_score,
             publisher_id=publisher.id,
-            service_id=service.id,
+            service_id=service,
             anomaly=anomalies
         )
         # db_relevant_state = RelevantState.model_validate(relevant_state)

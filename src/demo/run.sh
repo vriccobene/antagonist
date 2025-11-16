@@ -19,4 +19,4 @@ else
 fi
 
 # Start the script to load the data into InfluxDB
-python simulate_telemetry.py # --data_path ./OmniAnomaly/data/processed_data
+python simulate_telemetry.py
